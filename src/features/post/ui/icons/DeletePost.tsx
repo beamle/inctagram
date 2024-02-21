@@ -4,6 +4,8 @@ type Props = {
   color?: string
 }
 export const DeletePost = ({ color = '#8D9094' }: Props) => {
+  console.log('test')
+
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill={color}>
       <g clipPath="url(#clip0_309_6062)">
