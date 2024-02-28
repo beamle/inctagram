@@ -3,7 +3,7 @@ import { HYDRATE } from 'next-redux-wrapper'
 
 import { baseURL } from '../base-url.api'
 
-import { UserSessionsType } from './devices.api.types'
+import { UserSessionsType } from '@/shared/api'
 
 export const devicesApi = createApi({
   reducerPath: 'devicesApi',
