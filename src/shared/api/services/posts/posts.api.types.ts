@@ -93,12 +93,20 @@ export type GetCommentsResponseType = {
   totalCount: number
   items: Array<CommentType>
 }
+export type CreatePostLikeStatusRequest = {
+  likeStatus: 'NONE' | 'LIKE' | 'DISLIKE'
+}
+
 export type CreatePostRequest = {
   description: string
 }
 export type UpdatePostRequestType = {
   postId: number
   body: CreatePostRequest
+}
+export type UpdatePostLikeStatusRequestType = {
+  postId: number
+  body: CreatePostLikeStatusRequest
 }
 
 export type CreatePostCommentRequestType = {

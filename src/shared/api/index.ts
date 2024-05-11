@@ -45,6 +45,7 @@ export {
   useUpdatePostMutation,
   useCreatePostMutation,
   useUploadImageMutation,
+  useUpdatePostLikeStatusMutation,
 } from './services/posts/posts.api'
 
 export type {
