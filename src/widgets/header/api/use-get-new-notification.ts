@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { NotificationsItemType } from '@/shared/api/services/profile/profile.api.types'
 import { LocalStorageManager } from '@/shared/storages/local-storage-manager/local-storage-manager'
