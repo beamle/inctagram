@@ -16,6 +16,7 @@ import {
   UpdatePostRequestType,
   GetCommentsRequestType,
   GetCommentsResponseType,
+  ChangeCommentLikeStatusType,
 } from '@/shared/api/services/posts/posts.api.types'
 
 export const postsApi = createApi({
@@ -135,6 +136,19 @@ export const postsApi = createApi({
         },
         invalidatesTags: ['getPostComments'],
       }),
+      changeCommentLikeStatus: build.mutation<void, ChangeCommentLikeStatusType>({
+        query: ({ postId, commentId, likeStatus }) => {
+          return {
+            method: 'PUT',
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('accessToken') as string}`,
+            },
+            url: `posts/${postId}/comments/${commentId}/like-status`,
+            body: { likeStatus },
+          }
+        },
+        invalidatesTags: ['getPostComments'],
+      }),
       getPostComments: build.query<GetCommentsResponseType, GetCommentsRequestType>({
         query: ({ postId, pageNumber, pageSize, sortBy, sortDirection }) => {
           return {
@@ -167,4 +181,5 @@ export const {
   useGetAllPublicPostsQuery,
   useCreatePostCommentMutation,
   useLazyGetPostCommentsQuery,
+  useChangeCommentLikeStatusMutation,
 } = postsApi

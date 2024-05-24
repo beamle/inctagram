@@ -34,7 +34,7 @@ export const AddComment = ({
       .then(res => {
         reset()
         setCurrentValue('')
-        addNewComment(res)
+        addNewComment({ ...res, likeCount: 0, isLiked: false, answerCount: 0 })
       })
       .catch(error => {
         const errMessage = error.data.messages[0].message
