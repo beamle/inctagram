@@ -86,6 +86,9 @@ export type CommentType = {
   }
   content: string
   createdAt: string
+  answerCount: number
+  likeCount: number
+  isLiked: boolean
 }
 
 export type GetCommentsResponseType = {
@@ -122,4 +125,10 @@ export type CreatePostCommentResponseType = {
   }
   content: string
   createdAt: string
+}
+
+export type ChangeCommentLikeStatusType = {
+  postId: number
+  commentId: number
+  likeStatus: 'NONE' | 'LIKE' | 'DISLIKE'
 }

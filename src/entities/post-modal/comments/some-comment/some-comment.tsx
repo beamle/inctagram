@@ -3,24 +3,51 @@ import React from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'next-i18next'
+import { toast } from 'react-hot-toast'
 
 import styles from './some-comment.module.scss'
 
+import { useChangeCommentLikeStatusMutation } from '@/shared/api/services/posts/posts.api'
 import { CommentType } from '@/shared/api/services/posts/posts.api.types'
 import noImage from '@/shared/assets/icons/avatar-profile/not-photo.png'
 import likeIcon from '@/shared/assets/icons/icons/like-icon.svg'
+import likeRedIcon from '@/shared/assets/icons/icons/like-red-icon.svg'
 import { RoutersPath } from '@/shared/constants/paths'
 import { findDate } from '@/shared/utils'
 
 export const SomeComment = ({
+  id,
+  postId,
   from,
   content,
   createdAt,
+  likeCount,
+  isLiked,
   isLoggedIn,
-}: CommentType & { key: number; isLoggedIn: boolean }) => {
+  likeChange,
+}: CommentType & {
+  key: number
+  isLoggedIn: boolean
+  likeChange: () => void
+}) => {
   const router = useRouter()
   const { t } = useTranslation('common', { keyPrefix: 'Post' })
   const commentCreatedAt = findDate.difference(createdAt)
+  const [changeCommentLikeStatus] = useChangeCommentLikeStatusMutation()
+  const { t: tError } = useTranslation('common', { keyPrefix: 'Error' })
+  const likeClickHandler = () => {
+    likeChange()
+    changeCommentLikeStatus({
+      postId,
+      commentId: id,
+      likeStatus: isLiked ? 'DISLIKE' : 'LIKE',
+    })
+      .unwrap()
+      .catch(() => {
+        likeChange()
+        toast.error(tError('SomethingWentWrong'))
+      })
+  }
 
   return (
     <div className={styles.commentContainer}>
@@ -42,14 +69,20 @@ export const SomeComment = ({
             {content}
           </p>
           <div className={styles.commentLikeContainer}>
-            <Image src={likeIcon} alt={''} />
+            <Image
+              src={isLiked ? likeRedIcon : likeIcon}
+              alt={'like_icon'}
+              onClick={likeClickHandler}
+            />
           </div>
         </div>
         <div className={styles.commentInfoContainer}>
           <p className={styles.commentTime}>{commentCreatedAt}</p>
           {isLoggedIn && (
             <>
-              <p className={styles.commentLikes}>{t('Likes')}: 12</p>
+              <p className={styles.commentLikes}>
+                {t('Likes')}: {likeCount}
+              </p>
               <p className={styles.commentAnswer}>{t('Answer')}</p>
             </>
           )}

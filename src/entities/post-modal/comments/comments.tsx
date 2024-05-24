@@ -41,6 +41,21 @@ export const Comments = (props: PostResponseType) => {
       setPageNumber(prevNumber => prevNumber + 1)
     }
   })
+  const likeChange = (item: CommentType) => {
+    setItems(
+      items
+        ? items.map(el =>
+            el.id === item.id && el.postId === item.postId
+              ? {
+                  ...el,
+                  likeCount: item.isLiked ? item.likeCount - 1 : item.likeCount + 1,
+                  isLiked: !item.isLiked,
+                }
+              : el
+          )
+        : undefined
+    )
+  }
 
   useEffect(() => {
     getComments({
@@ -89,7 +104,9 @@ export const Comments = (props: PostResponseType) => {
     <div className={styles.commentContainerWrapper}>
       <div className={styles.allComments} ref={commentRef}>
         <Description {...props} />
-        {sortedIComments?.map(item => <SomeComment {...item} key={item.id} isLoggedIn />)}
+        {sortedIComments?.map(item => (
+          <SomeComment {...item} key={item.id} isLoggedIn likeChange={() => likeChange(item)} />
+        ))}
         <div ref={bottomRef}>{(isLoading || nextPageLoading) && <CircularLoader />}</div>
       </div>
       <div className={styles.summaryContainer}>
