@@ -10,8 +10,8 @@ import styles from './some-comment.module.scss'
 import { useChangeCommentLikeStatusMutation } from '@/shared/api/services/posts/posts.api'
 import { CommentType } from '@/shared/api/services/posts/posts.api.types'
 import noImage from '@/shared/assets/icons/avatar-profile/not-photo.png'
-import likeIcon from '@/shared/assets/icons/icons/like-icon.svg'
-import likeRedIcon from '@/shared/assets/icons/icons/like-red-icon.svg'
+import { LikeIcon } from '@/shared/assets/icons/icons/like-icon'
+import { LikeRedIcon } from '@/shared/assets/icons/icons/like-red-icon'
 import { RoutersPath } from '@/shared/constants/paths'
 import { findDate } from '@/shared/utils'
 
@@ -68,12 +68,8 @@ export const SomeComment = ({
             </span>
             {content}
           </p>
-          <div className={styles.commentLikeContainer}>
-            <Image
-              src={isLiked ? likeRedIcon : likeIcon}
-              alt={'like_icon'}
-              onClick={likeClickHandler}
-            />
+          <div className={styles.commentLikeContainer} onClick={likeClickHandler}>
+            {isLiked ? <LikeRedIcon /> : <LikeIcon />}
           </div>
         </div>
         <div className={styles.commentInfoContainer}>
