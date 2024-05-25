@@ -42,14 +42,14 @@ export const Comments = (props: PostResponseType) => {
     }
   })
   const likeChange = (item: CommentType) => {
-    setItems(
-      items
-        ? items.map(el =>
+    setItems(prevState =>
+      prevState
+        ? prevState.map(el =>
             el.id === item.id && el.postId === item.postId
               ? {
                   ...el,
-                  likeCount: item.isLiked ? item.likeCount - 1 : item.likeCount + 1,
-                  isLiked: !item.isLiked,
+                  likeCount: el.isLiked ? el.likeCount - 1 : el.likeCount + 1,
+                  isLiked: !el.isLiked,
                 }
               : el
           )
