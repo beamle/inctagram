@@ -108,7 +108,17 @@ export type CreatePostCommentRequestType = {
   postId: number
   content: string
 }
-
+export type CreatePostCommentAnswerResponseType = {
+  id: number
+  commentId: number
+  content: string
+  createdAt: string
+  likeCount: number
+  isLiked: boolean
+}
+export type CreatePostCommentAnswerRequestType = CreatePostCommentRequestType & {
+  commentId: number | undefined
+}
 export type CreatePostCommentResponseType = {
   id: number
   postId: number
@@ -129,6 +139,6 @@ export type CreatePostCommentResponseType = {
 
 export type ChangeCommentLikeStatusType = {
   postId: number
-  commentId: number
+  commentId: number | undefined
   likeStatus: 'NONE' | 'LIKE' | 'DISLIKE'
 }

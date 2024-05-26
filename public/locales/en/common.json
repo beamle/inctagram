@@ -268,6 +268,8 @@
     "CloseEditPost": "Do you really want to finish editing? If you close the changes you have made will not be saved.",
     "AddComment": "Add a Comment...",
     "Answer": "Answer",
+    "ViewAnswers": "View Answers",
+    "HideAnswers": "Hide Answers",
     "Likes": "Likes",
     "AnonymousUser": "Anonymous User",
     "SecondsAgo": {

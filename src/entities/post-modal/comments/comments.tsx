@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import Image from 'next/image'
 import { useTranslation } from 'next-i18next'
@@ -29,19 +29,20 @@ export const Comments = (props: PostResponseType) => {
   const [pageNumber, setPageNumber] = useState(1)
   const [items, setItems] = useState<Array<CommentType> | undefined>(undefined)
   const [nextPageLoading, setNextPageLoading] = useState(false)
+  const [commentsIdForAnswer, setCommentIdForAnswer] = useState<number | undefined>(undefined)
+  const [commentAuthor, setCommentAuthor] = useState<string | undefined>(undefined)
   const [getComments, { data: commentData, isLoading }] = useLazyGetPostCommentsQuery()
   const { data: userData } = useMeQuery()
   const userId = userData?.userId
   const commentRef = useRef<HTMLDivElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const { t: tError } = useTranslation('common', { keyPrefix: 'Error' })
-
   const observer = new IntersectionObserver(entries => {
     if (entries[0].isIntersecting) {
       setPageNumber(prevNumber => prevNumber + 1)
     }
   })
-  const likeChange = (item: CommentType) => {
+  const likeChange = useCallback((item: CommentType) => {
     setItems(prevState =>
       prevState
         ? prevState.map(el =>
@@ -55,7 +56,11 @@ export const Comments = (props: PostResponseType) => {
           )
         : undefined
     )
-  }
+  }, [])
+  const answerClickHandler = useCallback((item: CommentType) => {
+    setCommentIdForAnswer(item.id)
+    setCommentAuthor(item.from.username)
+  }, [])
 
   useEffect(() => {
     getComments({
@@ -66,11 +71,17 @@ export const Comments = (props: PostResponseType) => {
       .unwrap()
       .then(res => {
         setItems(res.items)
-        observer.observe(bottomRef?.current as HTMLDivElement)
+        if (+res.totalCount / res.pageSize > 1) {
+          observer.observe(bottomRef?.current as HTMLDivElement)
+        }
       })
       .catch(() => {
         toast.error(tError('SomethingWentWrong'))
       })
+
+    return () => {
+      observer.disconnect()
+    }
   }, [])
 
   useEffect(() => {
@@ -89,6 +100,8 @@ export const Comments = (props: PostResponseType) => {
               ...(res.items as CommentType[]),
             ])
           }
+          if (res.totalCount === commentData?.totalCount)
+            observer.unobserve(bottomRef?.current as HTMLDivElement)
           setNextPageLoading(false)
         })
         .catch(() => {
@@ -105,7 +118,13 @@ export const Comments = (props: PostResponseType) => {
       <div className={styles.allComments} ref={commentRef}>
         <Description {...props} />
         {sortedIComments?.map(item => (
-          <SomeComment {...item} key={item.id} isLoggedIn likeChange={() => likeChange(item)} />
+          <SomeComment
+            {...item}
+            key={item.id}
+            isLoggedIn
+            answerClickHandler={() => answerClickHandler(item)}
+            likeChange={() => likeChange(item)}
+          />
         ))}
         <div ref={bottomRef}>{(isLoading || nextPageLoading) && <CircularLoader />}</div>
       </div>
@@ -146,6 +165,8 @@ export const Comments = (props: PostResponseType) => {
             !!items && setItems([newItem, ...items])
             commentRef.current?.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
           }}
+          commentsIdForAnswer={commentsIdForAnswer}
+          commentAuthor={commentAuthor}
         />
       )}
     </div>
