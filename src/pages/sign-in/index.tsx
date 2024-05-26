@@ -1,13 +1,11 @@
 import React from 'react'
 
 import { GetStaticProps } from 'next'
-import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useSelector } from 'react-redux'
 
 import { SignInForm } from '@/features/auth-register'
-import { MessengerApp } from '@/module-federation/imports'
 import { selectIsLoggedIn } from '@/shared/api'
 import { RoutersPath } from '@/shared/constants/paths'
 import { getLayout } from '@/shared/layouts/main-layout/main-layout'

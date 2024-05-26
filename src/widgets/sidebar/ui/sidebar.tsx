@@ -107,7 +107,7 @@ export const SideBar = () => {
             <ProfileIcon />
             {t('MyProfile')}
           </div>
-          <div className={classNames.messenger}>
+          <div className={classNames.messenger} onClick={() => router.push(RoutersPath.messenger)}>
             <MessengerIcon />
             {t('Messenger')}
           </div>

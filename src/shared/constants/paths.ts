@@ -27,4 +27,5 @@ export const enum RoutersPath {
   superAdminUserProfile = '/super-admin/user-profile',
   apiAuthGithubLogin = 'https://inctagram.work/api/v1/auth/github/login',
   search = '/search',
+  messenger = '/messenger',
 }
