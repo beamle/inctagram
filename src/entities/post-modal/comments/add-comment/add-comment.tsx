@@ -8,14 +8,23 @@ import * as yup from 'yup'
 
 import styles from '@/entities/post-modal/comments/add-comment/add-comment.module.scss'
 import { PostResponseType } from '@/shared/api'
-import { useCreatePostCommentMutation } from '@/shared/api/services/posts/posts.api'
+import {
+  useCreatePostCommentAnswerMutation,
+  useCreatePostCommentMutation,
+} from '@/shared/api/services/posts/posts.api'
 import { CommentType } from '@/shared/api/services/posts/posts.api.types'
 import { Button, Input, InputType } from '@/shared/ui'
 
 export const AddComment = ({
   id,
   addNewComment,
-}: PostResponseType & { addNewComment: (newItem: CommentType) => void }) => {
+  commentsIdForAnswer,
+  commentAuthor,
+}: PostResponseType & {
+  addNewComment: (newItem: CommentType) => void
+  commentsIdForAnswer?: number | undefined
+  commentAuthor?: string | undefined
+}) => {
   const schema = yup.object().shape({
     content: yup.string().required('Error.RequiredField'),
   })
@@ -27,12 +36,12 @@ export const AddComment = ({
     },
   })
   const [createPostComment] = useCreatePostCommentMutation()
+  const [createPostCommentAnswer] = useCreatePostCommentAnswerMutation()
   const { t } = useTranslation('common', { keyPrefix: 'Post' })
-  const onSubmit = ({ content }: { content: string }) => {
+  const createComment = (content: string) =>
     createPostComment({ postId: id, content })
       .unwrap()
       .then(res => {
-        reset()
         setCurrentValue('')
         addNewComment({ ...res, likeCount: 0, isLiked: false, answerCount: 0 })
       })
@@ -41,10 +50,30 @@ export const AddComment = ({
 
         toast.error(errMessage)
       })
+  const createAnswer = (content: string) =>
+    createPostCommentAnswer({ postId: id, commentId: commentsIdForAnswer ?? undefined, content })
+      .unwrap()
+      .then(res => {
+        reset()
+        setCurrentValue('')
+        //addNewComment({ ...res, likeCount: 0, isLiked: false, answerCount: 0 })
+      })
+      .catch(error => {
+        const errMessage = error.data.messages[0].message
+
+        toast.error(errMessage)
+      })
+  const onSubmit = ({ content }: { content: string }) => {
+    commentsIdForAnswer ? void createAnswer(content) : void createComment(content)
   }
   const textareaRef: React.MutableRefObject<HTMLTextAreaElement | null> = useRef(null)
   const [currentValue, setCurrentValue] = useState('')
   const { ref, ...rest } = register('content')
+
+  useEffect(() => {
+    commentAuthor && setCurrentValue(`@${commentAuthor} `)
+    textareaRef.current?.focus()
+  }, [commentAuthor])
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -66,6 +95,7 @@ export const AddComment = ({
           placeholder={t('AddComment')}
           type={InputType.FRAMELESS}
           {...rest}
+          value={currentValue}
           ref={e => {
             ref(e)
             textareaRef.current = e
