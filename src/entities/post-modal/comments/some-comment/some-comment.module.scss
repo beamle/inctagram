@@ -68,3 +68,10 @@
   }
 }
 
+.userName {
+  color: var(--color-info-300);
+  &:hover{
+    opacity: 0.7;
+    cursor: pointer
+  }
+}
