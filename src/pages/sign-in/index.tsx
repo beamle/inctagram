@@ -33,7 +33,6 @@ const SignInPage = () => {
   return (
     <>
       <SignInForm />
-      <MessengerApp />
     </>
   )
 }
