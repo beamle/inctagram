@@ -12,7 +12,11 @@ import { SomeComment } from '@/entities/post-modal/comments/some-comment/some-co
 import { Description } from '@/entities/post-modal/description/description'
 import { selectIsLoggedIn, useMeQuery } from '@/shared/api'
 import { useLazyGetPostCommentsQuery } from '@/shared/api/services/posts/posts.api'
-import { CommentType, PostResponseType } from '@/shared/api/services/posts/posts.api.types'
+import {
+  AnswerType,
+  CommentType,
+  PostResponseType,
+} from '@/shared/api/services/posts/posts.api.types'
 import noImage from '@/shared/assets/icons/avatar-profile/not-photo.png'
 import likeIcon from '@/shared/assets/icons/icons/like-icon.svg'
 import saveIcon from '@/shared/assets/icons/icons/save-icon.svg'
@@ -31,8 +35,10 @@ export const Comments = (props: PostResponseType) => {
   const [nextPageLoading, setNextPageLoading] = useState(false)
   const [commentsIdForAnswer, setCommentIdForAnswer] = useState<number | undefined>(undefined)
   const [commentAuthor, setCommentAuthor] = useState<string | undefined>(undefined)
+  const [newAnswer, setNewAnswer] = useState<AnswerType | undefined>(undefined)
   const [getComments, { data: commentData, isLoading }] = useLazyGetPostCommentsQuery()
   const { data: userData } = useMeQuery()
+
   const userId = userData?.userId
   const commentRef = useRef<HTMLDivElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -112,6 +118,24 @@ export const Comments = (props: PostResponseType) => {
   const myComments = items?.filter(com => com.from.id === userId) as CommentType[]
   const notMyComments = items?.filter(com => com.from.id !== userId) as CommentType[]
   const sortedIComments = myComments && notMyComments ? [...myComments, ...notMyComments] : items
+  const addNewComment = useCallback(
+    (newItem: CommentType) => {
+      !!items && setItems([newItem, ...items])
+      commentRef.current?.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
+      setCommentAuthor(undefined)
+    },
+    [items]
+  )
+  const addNewAnswer = (newAnswer: AnswerType) => {
+    !!items &&
+      setItems(
+        items.map(el =>
+          el.id === newAnswer.commentId ? { ...el, answerCount: el.answerCount + 1 } : el
+        )
+      )
+    newAnswer && setNewAnswer(newAnswer)
+    setCommentAuthor(undefined)
+  }
 
   return (
     <div className={styles.commentContainerWrapper}>
@@ -122,8 +146,17 @@ export const Comments = (props: PostResponseType) => {
             {...item}
             key={item.id}
             isLoggedIn
-            answerClickHandler={() => answerClickHandler(item)}
+            answerClickHandler={(authorName?: string | undefined) => {
+              answerClickHandler(
+                authorName ? { ...item, from: { ...item.from, username: authorName } } : item
+              )
+            }}
             likeChange={() => likeChange(item)}
+            newAnswer={item.id === commentsIdForAnswer ? newAnswer : undefined}
+            changeCommentIdForAnswer={(commentId: number | undefined) =>
+              setCommentIdForAnswer(commentId)
+            }
+            resetNewAnswer={() => setNewAnswer(undefined)}
           />
         ))}
         <div ref={bottomRef}>{(isLoading || nextPageLoading) && <CircularLoader />}</div>
@@ -161,10 +194,8 @@ export const Comments = (props: PostResponseType) => {
       {isLoggedIn && (
         <AddComment
           {...props}
-          addNewComment={(newItem: CommentType) => {
-            !!items && setItems([newItem, ...items])
-            commentRef.current?.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
-          }}
+          addNewComment={addNewComment}
+          addNewAnswer={addNewAnswer}
           commentsIdForAnswer={commentsIdForAnswer}
           commentAuthor={commentAuthor}
         />

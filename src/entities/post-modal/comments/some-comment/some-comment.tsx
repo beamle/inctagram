@@ -1,22 +1,27 @@
-import React, { memo } from 'react'
+import React, { memo, useCallback, useEffect, useState } from 'react'
 
-import Image from 'next/image'
+import { clsx } from 'clsx'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'next-i18next'
 import { toast } from 'react-hot-toast'
 
 import styles from './some-comment.module.scss'
 
-import { useChangeCommentLikeStatusMutation } from '@/shared/api/services/posts/posts.api'
-import { CommentType } from '@/shared/api/services/posts/posts.api.types'
-import noImage from '@/shared/assets/icons/avatar-profile/not-photo.png'
-import { LikeIcon } from '@/shared/assets/icons/icons/like-icon'
-import { LikeRedIcon } from '@/shared/assets/icons/icons/like-red-icon'
+import { SomeAnswer } from '@/entities/post-modal/answers/some-answer/some-answer'
+import {
+  useChangeCommentLikeStatusMutation,
+  useLazyGetPostCommentAnswersQuery,
+} from '@/shared/api/services/posts/posts.api'
+import { AnswerType, CommentType } from '@/shared/api/services/posts/posts.api.types'
 import { RoutersPath } from '@/shared/constants/paths'
+import { CircularLoader } from '@/shared/ui'
+import { CommentAndAnswer } from '@/shared/ui/comments/comment-and-answer'
 import { findDate } from '@/shared/utils'
 
 export const SomeComment = memo(
   ({
+    answerCount,
+    answerClickHandler,
     id,
     postId,
     from,
@@ -26,12 +31,17 @@ export const SomeComment = memo(
     isLiked,
     isLoggedIn,
     likeChange,
-    answerClickHandler,
+    newAnswer,
+    changeCommentIdForAnswer,
+    resetNewAnswer,
   }: CommentType & {
     key: number
     isLoggedIn: boolean
     likeChange: () => void
-    answerClickHandler: () => void
+    newAnswer?: AnswerType | undefined
+    answerClickHandler: (authorName?: string | undefined) => void
+    changeCommentIdForAnswer: (commentId: number | undefined) => void
+    resetNewAnswer: () => void
   }) => {
     const router = useRouter()
     const { t } = useTranslation('common', { keyPrefix: 'Post' })
@@ -51,70 +61,99 @@ export const SomeComment = memo(
           toast.error(tError('SomethingWentWrong'))
         })
     }
-    const userNameClickHandler = (word: string) => {
-      if (from.username === word) {
-        void router.push(`${RoutersPath.profile}/${from.id}`)
-      }
+    const [openAnswers, setOpenAnswers] = useState(false)
+    const [answers, setAnswers] = useState<Array<AnswerType> | undefined>(undefined)
+    const [getCommentAnswers, { isLoading: answerIsLoading }] = useLazyGetPostCommentAnswersQuery()
+
+    useEffect(() => {
+      !!answers && !!newAnswer && setAnswers([newAnswer, ...answers])
+      resetNewAnswer()
+      changeCommentIdForAnswer(undefined)
+    }, [newAnswer])
+    const userNameClickHandler = (name: string) => {
+      const userId = answers?.find(answer => answer.from.username === name)?.from.id
+
+      if (from.username === name) void router.push(`${RoutersPath.profile}/${from.id}`)
+      else if (userId) void router.push(`${RoutersPath.profile}/${userId}`)
     }
-    const editedContentArray = content.trim().split(' ')
-    const wordCount = editedContentArray.length
-    const addSpaces = (word: string, i: number) => (i < wordCount ? `${word.trim()} ` : word.trim())
-    const editedContent = editedContentArray.map((word, i) => {
-      if (word.trim().match(/@\S+/g)) {
-        return (
-          <span
-            key={i}
-            className={styles.userName}
-            onClick={() => userNameClickHandler(word.slice(1))}
-          >
-            {addSpaces(word, i)}
-          </span>
-        )
-      } else {
-        return addSpaces(word, i)
-      }
-    })
+
+    const viewAnswersClickHandler = () => {
+      setOpenAnswers(prevState => !prevState)
+      if (!openAnswers)
+        getCommentAnswers({
+          postId,
+          commentId: id,
+          pageSize: 10,
+          pageNumber: 1,
+        })
+          .unwrap()
+          .then(res => {
+            setAnswers(res.items)
+          })
+          .catch(() => {
+            toast.error(tError('SomethingWentWrong'))
+          })
+    }
+    const likeAnswerChange = useCallback((item: AnswerType) => {
+      setAnswers(prevState =>
+        prevState
+          ? prevState.map(el =>
+              el.id === item.id && el.commentId === item.commentId
+                ? {
+                    ...el,
+                    likeCount: el.isLiked ? el.likeCount - 1 : el.likeCount + 1,
+                    isLiked: !el.isLiked,
+                  }
+                : el
+            )
+          : undefined
+      )
+    }, [])
+    const answerClick = useCallback((authorName: string) => {
+      changeCommentIdForAnswer(id)
+      answerClickHandler(authorName)
+    }, [])
 
     return (
-      <div className={styles.commentContainer}>
-        <div
-          className={styles.avatarContainer}
-          onClick={() => router.push(`${RoutersPath.profile}/${from.id}`)}
-        >
-          <Image
-            src={from.avatars[1]?.url ?? noImage}
-            alt={'avatar'}
-            objectFit="cover"
-            fill={true}
+      <div className={styles.mainContainer}>
+        <div className={styles.commentContainer}>
+          <CommentAndAnswer
+            answerClickHandler={() => answerClickHandler()}
+            from={from}
+            likeClickHandler={likeClickHandler}
+            createdAt={commentCreatedAt}
+            authorClickHandler={() => router.push(`${RoutersPath.profile}/${from.id}`)}
+            isLoggedIn={isLoggedIn}
+            isLiked={isLiked}
+            likeCount={likeCount}
+            content={content}
+            userNameClickHandler={userNameClickHandler}
           />
         </div>
-        <div className={styles.commentTextAndLikeWrapper}>
-          <div className={styles.commentTextContainer}>
-            <p className={styles.commentText}>
-              <span
-                className={styles.commentTextName}
-                onClick={() => router.push(`${RoutersPath.profile}/${from.id}`)}
-              >
-                <strong>{from.username}</strong>
-              </span>
-              {editedContent}
-            </p>
-            <div className={styles.commentLikeContainer} onClick={likeClickHandler}>
-              {isLiked ? <LikeRedIcon /> : <LikeIcon />}
+        <div className={styles.answersContainer}>
+          {!!answerCount && (
+            <div className={styles.answers} onClick={viewAnswersClickHandler}>
+              <div className={styles.line}></div>{' '}
+              {openAnswers ? t('HideAnswers') : t('ViewAnswers')} ({answerCount})
             </div>
-          </div>
-          <div className={styles.commentInfoContainer}>
-            <p className={styles.commentTime}>{commentCreatedAt}</p>
-            {isLoggedIn && (
-              <>
-                <p className={styles.commentLikes}>
-                  {t('Likes')}: {likeCount}
-                </p>
-                <p className={styles.commentAnswer} onClick={answerClickHandler}>
-                  {t('Answer')}
-                </p>
-              </>
-            )}
+          )}
+          <div
+            className={openAnswers ? clsx(styles.answersBlock, styles.margin) : styles.answersBlock}
+          >
+            {openAnswers &&
+              answers?.map(answer => (
+                <div className={styles.someAnswer} key={answer.id}>
+                  <SomeAnswer
+                    {...answer}
+                    postId={postId}
+                    isLoggedIn
+                    answerClickHandler={() => answerClick(answer.from.username)}
+                    likeChange={() => likeAnswerChange(answer)}
+                    userNameClickHandler={userNameClickHandler}
+                  />
+                </div>
+              ))}
+            <div className={styles.loader}>{answerIsLoading && <CircularLoader />}</div>
           </div>
         </div>
       </div>
