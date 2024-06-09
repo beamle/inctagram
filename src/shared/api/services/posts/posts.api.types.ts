@@ -70,20 +70,21 @@ export type GetCommentsRequestType = {
   sortBy?: string
   sortDirection?: 'desc' | 'asc'
 }
+export type AuthorType = {
+  id: number
+  username: string
+  avatars: Array<{
+    url: string
+    width: number
+    height: number
+    fileSize: number
+    createdAt: string
+  }>
+}
 export type CommentType = {
   id: number
   postId: number
-  from: {
-    id: number
-    username: string
-    avatars: Array<{
-      url: string
-      width: number
-      height: number
-      fileSize: number
-      createdAt: string
-    }>
-  }
+  from: AuthorType
   content: string
   createdAt: string
   answerCount: number
@@ -111,10 +112,9 @@ export type CreatePostCommentRequestType = {
 export type CreatePostCommentAnswerResponseType = {
   id: number
   commentId: number
+  from: AuthorType
   content: string
   createdAt: string
-  likeCount: number
-  isLiked: boolean
 }
 export type CreatePostCommentAnswerRequestType = CreatePostCommentRequestType & {
   commentId: number | undefined
@@ -122,17 +122,7 @@ export type CreatePostCommentAnswerRequestType = CreatePostCommentRequestType & 
 export type CreatePostCommentResponseType = {
   id: number
   postId: number
-  from: {
-    id: number
-    username: string
-    avatars: Array<{
-      url: string
-      width: number
-      height: number
-      fileSize: number
-      createdAt: string
-    }>
-  }
+  from: AuthorType
   content: string
   createdAt: string
 }
@@ -141,4 +131,20 @@ export type ChangeCommentLikeStatusType = {
   postId: number
   commentId: number | undefined
   likeStatus: 'NONE' | 'LIKE' | 'DISLIKE'
+}
+export type GetCommentAnswersRequestType = GetCommentsRequestType & { commentId: number }
+export type ChangeCommentAnswerLikeStatusType = ChangeCommentLikeStatusType & { answerId: number }
+export type GetCommentAnswersResponseType = {
+  pageSize: number
+  totalCount: number
+  items: [AnswerType]
+}
+export type AnswerType = {
+  id: number
+  commentId: number
+  from: AuthorType
+  content: string
+  createdAt: string
+  likeCount: number
+  isLiked: boolean
 }

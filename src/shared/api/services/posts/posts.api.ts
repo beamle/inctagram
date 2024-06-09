@@ -19,6 +19,9 @@ import {
   ChangeCommentLikeStatusType,
   CreatePostCommentAnswerResponseType,
   CreatePostCommentAnswerRequestType,
+  GetCommentAnswersRequestType,
+  GetCommentAnswersResponseType,
+  ChangeCommentAnswerLikeStatusType,
 } from '@/shared/api/services/posts/posts.api.types'
 
 export const postsApi = createApi({
@@ -29,7 +32,7 @@ export const postsApi = createApi({
       return action.payload[reducerPath]
     }
   },
-  tagTypes: ['editPost', 'deletePost', 'createPost', 'getPostComments'],
+  tagTypes: ['editPost', 'deletePost', 'createPost', 'getPostComments', 'getPostCommentAnswers'],
   endpoints: build => {
     return {
       createPost: build.mutation<PostResponseType, PostsType>({
@@ -152,7 +155,7 @@ export const postsApi = createApi({
             body: { content },
           }
         },
-        // invalidatesTags: ['getPostCommentAnswers'],
+        invalidatesTags: ['getPostCommentAnswers'],
       }),
       changeCommentLikeStatus: build.mutation<void, ChangeCommentLikeStatusType>({
         query: ({ postId, commentId, likeStatus }) => {
@@ -166,6 +169,19 @@ export const postsApi = createApi({
           }
         },
         invalidatesTags: ['getPostComments'],
+      }),
+      changeCommentAnswerLikeStatus: build.mutation<void, ChangeCommentAnswerLikeStatusType>({
+        query: ({ postId, commentId, answerId, likeStatus }) => {
+          return {
+            method: 'PUT',
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('accessToken') as string}`,
+            },
+            url: `posts/${postId}/comments/${commentId}/answers/${answerId}/like-status`,
+            body: { likeStatus },
+          }
+        },
+        invalidatesTags: ['getPostCommentAnswers'],
       }),
       getPostComments: build.query<GetCommentsResponseType, GetCommentsRequestType>({
         query: ({ postId, pageNumber, pageSize, sortBy, sortDirection }) => {
@@ -185,6 +201,27 @@ export const postsApi = createApi({
         },
         providesTags: ['getPostComments'],
       }),
+      getPostCommentAnswers: build.query<
+        GetCommentAnswersResponseType,
+        GetCommentAnswersRequestType
+      >({
+        query: ({ postId, commentId, pageNumber, pageSize, sortBy, sortDirection }) => {
+          return {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('accessToken') as string}`,
+            },
+            url: `posts/${postId}/comments/${commentId}/answers`,
+            params: {
+              pageSize,
+              pageNumber,
+              sortBy,
+              sortDirection,
+            },
+          }
+        },
+        providesTags: ['getPostCommentAnswers'],
+      }),
     }
   },
 })
@@ -201,4 +238,6 @@ export const {
   useCreatePostCommentAnswerMutation,
   useLazyGetPostCommentsQuery,
   useChangeCommentLikeStatusMutation,
+  useChangeCommentAnswerLikeStatusMutation,
+  useLazyGetPostCommentAnswersQuery,
 } = postsApi
