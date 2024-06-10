@@ -63,7 +63,9 @@ export const SomeComment = memo(
     }
     const [openAnswers, setOpenAnswers] = useState(false)
     const [answers, setAnswers] = useState<Array<AnswerType> | undefined>(undefined)
+    const [answerDownloadCount, setAnswerDownloadCount] = useState(answerCount)
     const [getCommentAnswers, { isLoading: answerIsLoading }] = useLazyGetPostCommentAnswersQuery()
+    const [pageNumber, setPageNumber] = useState(0)
 
     useEffect(() => {
       !!answers && !!newAnswer && setAnswers([newAnswer, ...answers])
@@ -78,18 +80,24 @@ export const SomeComment = memo(
     }
 
     const viewAnswersClickHandler = () => {
-      setOpenAnswers(prevState => !prevState)
-      if (!openAnswers)
+      setOpenAnswers(prevState =>
+        !prevState
+          ? !prevState && (answerDownloadCount === answerCount || answerDownloadCount === 0)
+          : answerDownloadCount > 0
+      )
+      if (!openAnswers || (openAnswers && answerDownloadCount > 0))
         getCommentAnswers({
           postId,
           commentId: id,
-          pageSize: 10,
-          pageNumber: 1,
+          pageSize: 5,
+          pageNumber: pageNumber + 1,
         })
           .unwrap()
           .then(res => {
-            setAnswers(res.items)
+            setAnswers(prevState => (prevState ? [...prevState, ...res.items] : res.items))
+            setAnswerDownloadCount(answerDownloadCount - res.items.length)
           })
+          .then(() => setPageNumber(PrevState => PrevState + 1))
           .catch(() => {
             toast.error(tError('SomethingWentWrong'))
           })
@@ -134,7 +142,8 @@ export const SomeComment = memo(
           {!!answerCount && (
             <div className={styles.answers} onClick={viewAnswersClickHandler}>
               <div className={styles.line}></div>{' '}
-              {openAnswers ? t('HideAnswers') : t('ViewAnswers')} ({answerCount})
+              {openAnswers && !answerDownloadCount ? t('HideAnswers') : t('ViewAnswers')} (
+              {answerDownloadCount > 0 ? answerDownloadCount : answerCount})
             </div>
           )}
           <div
