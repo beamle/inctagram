@@ -1,0 +1,61 @@
+.skeleton {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 24px;
+  padding: 12px 24px;
+  .avatar {
+    height: 36px;
+    width: 36px;
+    border-radius: 50%;
+    background-color: var(--color-dark-300);
+  }
+  .mainBlock {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    .text {
+      height: 16px;
+      width: 260px;
+      background-color: var(--color-dark-300);
+      border-radius: 4px
+    }
+    .likesAndAnswers {
+      height: 16px;
+      width: 160px;
+      background: var(--color-dark-300);
+      border-radius: 4px
+    }
+  }
+}
+@keyframes load {
+  from {
+    left: -150px;
+  } to {
+      left: 100%;
+    }
+}
+.placeholder {
+  box-shadow: 0 4px 10px 0 rgba(33, 33, 33, 0.15);
+  position: relative;
+  overflow: hidden;
+  &::before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: -150px;
+    top: 0;
+    height: 100%;
+    width: 150px;
+    background: linear-gradient(to right, transparent 0%, var(--color-dark-100) 50%, transparent 100%);
+    animation: load 1s cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+}
+@keyframes load {
+  from {
+    left: -150px;
+  } to {
+      left: 100%;
+    }
+}
