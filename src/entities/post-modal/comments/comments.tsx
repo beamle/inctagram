@@ -21,7 +21,7 @@ import noImage from '@/shared/assets/icons/avatar-profile/not-photo.png'
 import likeIcon from '@/shared/assets/icons/icons/like-icon.svg'
 import saveIcon from '@/shared/assets/icons/icons/save-icon.svg'
 import shareIcon from '@/shared/assets/icons/icons/share-icon.svg'
-import { CircularLoader } from '@/shared/ui'
+import { Skeleton } from '@/shared/ui/comments/skeleton/skeleton'
 import { findDate } from '@/shared/utils'
 
 export const Comments = (props: PostResponseType) => {
@@ -159,7 +159,9 @@ export const Comments = (props: PostResponseType) => {
             resetNewAnswer={() => setNewAnswer(undefined)}
           />
         ))}
-        <div ref={bottomRef}>{(isLoading || nextPageLoading) && <CircularLoader />}</div>
+        <div ref={bottomRef}>
+          {(isLoading || nextPageLoading) && [1, 2, 3, 4, 5, 6].map(n => <Skeleton key={n} />)}
+        </div>
       </div>
       <div className={styles.summaryContainer}>
         {isLoggedIn && (
