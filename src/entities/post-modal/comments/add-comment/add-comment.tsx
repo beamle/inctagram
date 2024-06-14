@@ -20,12 +20,12 @@ export const AddComment = memo(
     id,
     addNewComment,
     addNewAnswer,
-    commentsIdForAnswer,
+    commentIdForAnswer,
     commentAuthor,
   }: PostResponseType & {
     addNewComment: (newComment: CommentType) => void
     addNewAnswer: (newAnswer: AnswerType) => void
-    commentsIdForAnswer?: number | undefined
+    commentIdForAnswer?: number | undefined
     commentAuthor?: string | undefined
   }) => {
     const schema = yup.object().shape({
@@ -54,7 +54,7 @@ export const AddComment = memo(
           toast.error(errMessage)
         })
     const createAnswer = (content: string) =>
-      createPostCommentAnswer({ postId: id, commentId: commentsIdForAnswer ?? undefined, content })
+      createPostCommentAnswer({ postId: id, commentId: commentIdForAnswer ?? undefined, content })
         .unwrap()
         .then(res => {
           reset()
@@ -67,7 +67,7 @@ export const AddComment = memo(
           toast.error(errMessage)
         })
     const onSubmit = ({ content }: { content: string }) => {
-      commentsIdForAnswer ? void createAnswer(content) : void createComment(content)
+      commentIdForAnswer ? void createAnswer(content) : void createComment(content)
     }
     const textareaRef: React.MutableRefObject<HTMLTextAreaElement | null> = useRef(null)
     const [currentValue, setCurrentValue] = useState('')
@@ -76,7 +76,7 @@ export const AddComment = memo(
     useEffect(() => {
       commentAuthor && setCurrentValue(`@${commentAuthor} `)
       textareaRef.current?.focus()
-    }, [commentAuthor, commentsIdForAnswer])
+    }, [commentAuthor, commentIdForAnswer])
 
     useEffect(() => {
       if (textareaRef.current) {

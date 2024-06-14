@@ -34,6 +34,7 @@ export const SomeComment = memo(
     newAnswer,
     changeCommentIdForAnswer,
     resetNewAnswer,
+    viewAnswers,
   }: CommentType & {
     key: number
     isLoggedIn: boolean
@@ -42,6 +43,7 @@ export const SomeComment = memo(
     answerClickHandler: (authorName?: string | undefined) => void
     changeCommentIdForAnswer: (commentId: number | undefined) => void
     resetNewAnswer: () => void
+    viewAnswers: (commentId: number) => void
   }) => {
     const router = useRouter()
     const { t } = useTranslation('common', { keyPrefix: 'Post' })
@@ -97,7 +99,10 @@ export const SomeComment = memo(
             setAnswers(prevState => (prevState ? [...prevState, ...res.items] : res.items))
             setAnswerDownloadCount(answerDownloadCount - res.items.length)
           })
-          .then(() => setPageNumber(PrevState => PrevState + 1))
+          .then(() => {
+            setPageNumber(PrevState => PrevState + 1)
+            viewAnswers(id)
+          })
           .catch(() => {
             toast.error(tError('SomethingWentWrong'))
           })
