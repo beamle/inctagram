@@ -17,41 +17,36 @@ import { RoutersPath } from '@/shared/constants/paths'
 import { CircularLoader } from '@/shared/ui'
 import { CommentAndAnswer } from '@/shared/ui/comments/comment-and-answer'
 import { findDate } from '@/shared/utils'
+type SomeCommentType = {
+  item: CommentType
+  isLoggedIn: boolean
+  likeChange: (item: CommentType) => void
+  newAnswer?: AnswerType | undefined
+  answerClickHandler: (item: CommentType, authorName?: string | undefined) => void
+  changeCommentIdForAnswer: (commentId: number | undefined) => void
+  resetNewAnswer: () => void
+  viewAnswers: (commentId: number) => void
+}
 
 export const SomeComment = memo(
   ({
-    answerCount,
+    item,
     answerClickHandler,
-    id,
-    postId,
-    from,
-    content,
-    createdAt,
-    likeCount,
-    isLiked,
     isLoggedIn,
     likeChange,
     newAnswer,
     changeCommentIdForAnswer,
     resetNewAnswer,
     viewAnswers,
-  }: CommentType & {
-    key: number
-    isLoggedIn: boolean
-    likeChange: () => void
-    newAnswer?: AnswerType | undefined
-    answerClickHandler: (authorName?: string | undefined) => void
-    changeCommentIdForAnswer: (commentId: number | undefined) => void
-    resetNewAnswer: () => void
-    viewAnswers: (commentId: number) => void
-  }) => {
+  }: SomeCommentType) => {
+    const { id, content, createdAt, likeCount, isLiked, answerCount, postId, from } = item
     const router = useRouter()
     const { t } = useTranslation('common', { keyPrefix: 'Post' })
     const commentCreatedAt = findDate.difference(createdAt)
     const [changeCommentLikeStatus] = useChangeCommentLikeStatusMutation()
     const { t: tError } = useTranslation('common', { keyPrefix: 'Error' })
     const likeClickHandler = () => {
-      likeChange()
+      likeChange(item)
       changeCommentLikeStatus({
         postId,
         commentId: id,
@@ -59,7 +54,7 @@ export const SomeComment = memo(
       })
         .unwrap()
         .catch(() => {
-          likeChange()
+          likeChange(item)
           toast.error(tError('SomethingWentWrong'))
         })
     }
@@ -70,21 +65,24 @@ export const SomeComment = memo(
     const [pageNumber, setPageNumber] = useState(0)
 
     useEffect(() => {
-      !!answers && !!newAnswer && setAnswers([newAnswer, ...answers])
-      resetNewAnswer()
-      changeCommentIdForAnswer(undefined)
+      if (newAnswer) {
+        !!answers && setAnswers([newAnswer, ...answers])
+        resetNewAnswer()
+        newAnswer && viewAnswers(item.id)
+        changeCommentIdForAnswer(undefined)
+      }
     }, [newAnswer])
-    const userNameClickHandler = (name: string) => {
+    const userNameClickHandler = useCallback((name: string) => {
       const userId = answers?.find(answer => answer.from.username === name)?.from.id
 
       if (from.username === name) void router.push(`${RoutersPath.profile}/${from.id}`)
       else if (userId) void router.push(`${RoutersPath.profile}/${userId}`)
-    }
+    }, [])
 
     const viewAnswersClickHandler = () => {
       setOpenAnswers(prevState =>
         !prevState
-          ? !prevState && (answerDownloadCount === answerCount || answerDownloadCount === 0)
+          ? answerDownloadCount === answerCount || answerDownloadCount <= 0
           : answerDownloadCount > 0
       )
       if (!openAnswers || (openAnswers && answerDownloadCount > 0))
@@ -107,11 +105,11 @@ export const SomeComment = memo(
             toast.error(tError('SomethingWentWrong'))
           })
     }
-    const likeAnswerChange = useCallback((item: AnswerType) => {
+    const likeAnswerChange = useCallback((answer: AnswerType) => {
       setAnswers(prevState =>
         prevState
           ? prevState.map(el =>
-              el.id === item.id && el.commentId === item.commentId
+              el.id === answer.id && el.commentId === answer.commentId
                 ? {
                     ...el,
                     likeCount: el.isLiked ? el.likeCount - 1 : el.likeCount + 1,
@@ -124,14 +122,14 @@ export const SomeComment = memo(
     }, [])
     const answerClick = useCallback((authorName: string) => {
       changeCommentIdForAnswer(id)
-      answerClickHandler(authorName)
+      answerClickHandler(item, authorName)
     }, [])
 
     return (
       <div className={styles.mainContainer}>
         <div className={styles.commentContainer}>
           <CommentAndAnswer
-            answerClickHandler={() => answerClickHandler()}
+            answerClickHandler={() => answerClickHandler(item)}
             from={from}
             likeClickHandler={likeClickHandler}
             createdAt={commentCreatedAt}
@@ -147,7 +145,7 @@ export const SomeComment = memo(
           {!!answerCount && (
             <div className={styles.answers} onClick={viewAnswersClickHandler}>
               <div className={styles.line}></div>{' '}
-              {openAnswers && !answerDownloadCount ? t('HideAnswers') : t('ViewAnswers')} (
+              {openAnswers && answerDownloadCount <= 0 ? t('HideAnswers') : t('ViewAnswers')} (
               {answerDownloadCount > 0 ? answerDownloadCount : answerCount})
             </div>
           )}
@@ -158,11 +156,11 @@ export const SomeComment = memo(
               answers?.map(answer => (
                 <div className={styles.someAnswer} key={answer.id}>
                   <SomeAnswer
-                    {...answer}
+                    answer={answer}
                     postId={postId}
                     isLoggedIn
-                    answerClickHandler={() => answerClick(answer.from.username)}
-                    likeChange={() => likeAnswerChange(answer)}
+                    answerClickHandler={answerClick}
+                    likeChange={likeAnswerChange}
                     userNameClickHandler={userNameClickHandler}
                   />
                 </div>
