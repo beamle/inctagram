@@ -65,10 +65,6 @@ export const Comments = (props: PostResponseType) => {
         : undefined
     )
   }, [])
-  const answerClickHandler = useCallback((item: CommentType) => {
-    setCommentIdForAnswer(item.id)
-    setCommentAuthor(item.from.username)
-  }, [])
 
   useEffect(() => {
     getComments({
@@ -128,22 +124,28 @@ export const Comments = (props: PostResponseType) => {
     },
     [items]
   )
-  const addNewAnswer = useCallback((newAnswer: AnswerType) => {
-    !!items &&
-      setItems(
-        items.map(el =>
-          el.id === newAnswer.commentId ? { ...el, answerCount: el.answerCount + 1 } : el
+  const addNewAnswer = useCallback(
+    (newAnswer: AnswerType) => {
+      !!items &&
+        setItems(
+          items.map(el =>
+            el.id === newAnswer.commentId ? { ...el, answerCount: el.answerCount + 1 } : el
+          )
         )
-      )
-    newAnswer && setNewAnswer(newAnswer)
-    setCommentAuthor(undefined)
-  }, [])
-  const viewAnswers = useCallback((commentId: number) => {
-    const map = getMap() as Map<number, HTMLDivElement>
-    const node = map?.get(commentId)
+      newAnswer && setNewAnswer(newAnswer)
+      setCommentAuthor(undefined)
+    },
+    [items]
+  )
+  const viewAnswers = useCallback(
+    (commentId: number) => {
+      const map = getMap() as Map<number, HTMLDivElement>
+      const node = map?.get(commentId)
 
-    node?.scrollIntoView({ block: 'start', inline: 'start', behavior: 'smooth' })
-  }, [])
+      node?.scrollIntoView({ block: 'start', inline: 'start', behavior: 'smooth' })
+    },
+    [viewCommentRef]
+  )
   const resetNewAnswer = useCallback(() => setNewAnswer(undefined), [])
   const changeCommentIdForAnswer = useCallback(
     (commentId: number | undefined) => setCommentIdForAnswer(commentId),
@@ -156,19 +158,19 @@ export const Comments = (props: PostResponseType) => {
 
     return viewCommentRef.current
   }
+  const likeChange = useCallback((item: CommentType) => likeChangeHandler(item), [])
+  const answerClick = useCallback((item: CommentType, authorName?: string | undefined) => {
+    const itemValue = authorName ? { ...item, from: { ...item.from, username: authorName } } : item
+
+    setCommentIdForAnswer(itemValue.id)
+    setCommentAuthor(itemValue.from.username)
+  }, [])
 
   return (
     <div className={styles.commentContainerWrapper}>
       <div className={styles.allComments} ref={newCommentRef}>
         <Description {...props} />
         {sortedComments?.map(item => {
-          const answerClick = (authorName: string | undefined) => {
-            answerClickHandler(
-              authorName ? { ...item, from: { ...item.from, username: authorName } } : item
-            )
-          }
-          const likeChange = () => likeChangeHandler(item)
-
           return (
             <>
               <div
@@ -183,7 +185,7 @@ export const Comments = (props: PostResponseType) => {
                 }}
               >
                 <SomeComment
-                  {...item}
+                  item={item}
                   key={item.id}
                   isLoggedIn
                   answerClickHandler={answerClick}

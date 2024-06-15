@@ -11,34 +11,31 @@ import { AnswerType } from '@/shared/api/services/posts/posts.api.types'
 import { RoutersPath } from '@/shared/constants/paths'
 import { CommentAndAnswer } from '@/shared/ui/comments/comment-and-answer'
 import { findDate } from '@/shared/utils'
+type SomeAnswerType = {
+  answer: AnswerType
+  postId: number
+  isLoggedIn: boolean
+  likeChange: (answer: AnswerType) => void
+  answerClickHandler: (author: string) => void
+  userNameClickHandler: (name: string) => void
+}
 
 export const SomeAnswer = memo(
   ({
-    answerClickHandler,
+    answer,
     postId,
-    id,
-    commentId,
-    from,
-    content,
-    createdAt,
-    likeCount,
-    isLiked,
+    answerClickHandler,
     isLoggedIn,
     likeChange,
     userNameClickHandler,
-  }: AnswerType & {
-    postId: number
-    isLoggedIn: boolean
-    likeChange: () => void
-    answerClickHandler: () => void
-    userNameClickHandler: (name: string) => void
-  }) => {
+  }: SomeAnswerType) => {
+    const { id, from, content, createdAt, likeCount, isLiked, commentId } = answer
     const router = useRouter()
     const answerCreatedAt = findDate.difference(createdAt)
     const [changeCommentAnswerLikeStatus] = useChangeCommentAnswerLikeStatusMutation()
     const { t: tError } = useTranslation('common', { keyPrefix: 'Error' })
     const likeClickHandler = () => {
-      likeChange()
+      likeChange(answer)
       changeCommentAnswerLikeStatus({
         postId,
         answerId: id,
@@ -47,7 +44,7 @@ export const SomeAnswer = memo(
       })
         .unwrap()
         .catch(() => {
-          likeChange()
+          likeChange(answer)
           toast.error(tError('SomethingWentWrong'))
         })
     }
@@ -63,7 +60,7 @@ export const SomeAnswer = memo(
           isLoggedIn={isLoggedIn}
           likeClickHandler={likeClickHandler}
           authorClickHandler={() => router.push(`${RoutersPath.profile}/${from.id}`)}
-          answerClickHandler={answerClickHandler}
+          answerClickHandler={() => answerClickHandler(answer.from.username)}
           userNameClickHandler={userNameClickHandler}
         />
       </div>
