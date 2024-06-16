@@ -17,6 +17,7 @@ import { RoutersPath } from '@/shared/constants/paths'
 import { CircularLoader } from '@/shared/ui'
 import { CommentAndAnswer } from '@/shared/ui/comments/comment-and-answer'
 import { findDate } from '@/shared/utils'
+import { concatExcludeDuplicates } from '@/shared/utils/concat-exclude-duplicates'
 type SomeCommentType = {
   item: CommentType
   isLoggedIn: boolean
@@ -94,7 +95,9 @@ export const SomeComment = memo(
         })
           .unwrap()
           .then(res => {
-            setAnswers(prevState => (prevState ? [...prevState, ...res.items] : res.items))
+            setAnswers(prevState =>
+              prevState ? concatExcludeDuplicates(prevState, res.items) : res.items
+            )
             setAnswerDownloadCount(answerDownloadCount - res.items.length)
           })
           .then(() => {

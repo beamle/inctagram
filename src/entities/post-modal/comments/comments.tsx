@@ -23,6 +23,7 @@ import saveIcon from '@/shared/assets/icons/icons/save-icon.svg'
 import shareIcon from '@/shared/assets/icons/icons/share-icon.svg'
 import { Skeleton } from '@/shared/ui/comments/skeleton/skeleton'
 import { findDate } from '@/shared/utils'
+import { concatExcludeDuplicates } from '@/shared/utils/concat-exclude-duplicates'
 
 export const Comments = (props: PostResponseType) => {
   const { avatarOwner, createdAt, id, likesCount } = props
@@ -89,7 +90,7 @@ export const Comments = (props: PostResponseType) => {
   }, [])
 
   useEffect(() => {
-    if (items && commentData && commentData?.totalCount > items?.length) {
+    if (pageNumber > 1 && items && commentData && commentData?.totalCount > items?.length) {
       setNextPageLoading(true)
       getComments({
         postId: id,
@@ -99,10 +100,7 @@ export const Comments = (props: PostResponseType) => {
         .unwrap()
         .then(res => {
           if (items) {
-            setItems(prevItems => [
-              ...(prevItems as CommentType[]),
-              ...(res.items as CommentType[]),
-            ])
+            setItems(prevItems => concatExcludeDuplicates(prevItems, res.items))
           }
           if (res.totalCount === commentData?.totalCount)
             observer.unobserve(bottomRef?.current as HTMLDivElement)
