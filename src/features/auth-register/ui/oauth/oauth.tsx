@@ -41,9 +41,9 @@ export const OAuth = () => {
 
       if (data.accessToken && data.email) {
         localStorage.setItem('accessToken', data.accessToken as string)
-        router.push(`/profile`)
+        await router.push(`/profile`)
       } else {
-        router.push(`/sign-in`)
+        await router.push(`/sign-in`)
       }
     },
     onError: () => toast.error(tError('SomethingWentWrong')),
@@ -51,7 +51,7 @@ export const OAuth = () => {
   })
 
   const onGithubLogin = () => {
-    router.push(RoutersPath.apiAuthGithubLogin)
+    void router.push(RoutersPath.apiAuthGithubLogin)
     setShowLoader({ github: true })
     setTimeout(() => {
       setShowLoader({ github: false })
@@ -70,16 +70,18 @@ export const OAuth = () => {
         src={googleIcon}
         alt="google icon"
       />
-      {showLoader.github ? (
-        <CircularLoader />
-      ) : (
-        <Image
-          onClick={onGithubLogin}
-          className={styles.socialIcon}
-          src={githubIcon}
-          alt="github icon"
-        />
-      )}
+      <div className={styles.icon}>
+        {showLoader.github ? (
+          <CircularLoader />
+        ) : (
+          <Image
+            onClick={onGithubLogin}
+            className={styles.socialIcon}
+            src={githubIcon}
+            alt="github icon"
+          />
+        )}
+      </div>
     </div>
   )
 }

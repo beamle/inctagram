@@ -25,7 +25,7 @@ const SignInPage = () => {
   const router = useRouter()
 
   if (isLoggedIn) {
-    router.push(RoutersPath.profile)
+    void router.push(RoutersPath.profile)
   }
 
   return (
