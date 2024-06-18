@@ -14,8 +14,10 @@ import {
 } from '@/shared/api/services/posts/posts.api'
 import { AnswerType, CommentType } from '@/shared/api/services/posts/posts.api.types'
 import { RoutersPath } from '@/shared/constants/paths'
+import { useTriggerAddTimeout } from '@/shared/hooks/use-trigger-add-timeout'
 import { CircularLoader } from '@/shared/ui'
 import { CommentAndAnswer } from '@/shared/ui/comments/comment-and-answer'
+import { Skeleton } from '@/shared/ui/comments/skeleton/skeleton'
 import { findDate } from '@/shared/utils'
 import { concatExcludeDuplicates } from '@/shared/utils/concat-exclude-duplicates'
 type SomeCommentType = {
@@ -64,12 +66,15 @@ export const SomeComment = memo(
     const [answerDownloadCount, setAnswerDownloadCount] = useState(answerCount)
     const [getCommentAnswers, { isLoading: answerIsLoading }] = useLazyGetPostCommentAnswersQuery()
     const [pageNumber, setPageNumber] = useState(0)
+    const [nextPageLoading, setNextPageLoading] = useState(false)
 
     useEffect(() => {
       if (newAnswer) {
         !!answers && setAnswers([newAnswer, ...answers])
+        if (!openAnswers) {
+          viewAnswersClickHandler()
+        }
         resetNewAnswer()
-        newAnswer && viewAnswers(item.id)
         changeCommentIdForAnswer(undefined)
       }
     }, [newAnswer])
@@ -81,12 +86,9 @@ export const SomeComment = memo(
     }, [])
 
     const viewAnswersClickHandler = () => {
-      setOpenAnswers(prevState =>
-        !prevState
-          ? answerDownloadCount === answerCount || answerDownloadCount <= 0
-          : answerDownloadCount > 0
-      )
-      if (!openAnswers || (openAnswers && answerDownloadCount > 0))
+      setOpenAnswers(prevState => (!prevState ? true : answerDownloadCount > 0))
+      if (!openAnswers || (openAnswers && answerDownloadCount > 0)) {
+        setNextPageLoading(true)
         getCommentAnswers({
           postId,
           commentId: id,
@@ -102,11 +104,13 @@ export const SomeComment = memo(
           })
           .then(() => {
             setPageNumber(PrevState => PrevState + 1)
+            setNextPageLoading(false)
             viewAnswers(id)
           })
           .catch(() => {
             toast.error(tError('SomethingWentWrong'))
           })
+      }
     }
     const likeAnswerChange = useCallback((answer: AnswerType) => {
       setAnswers(prevState =>
@@ -127,6 +131,17 @@ export const SomeComment = memo(
       changeCommentIdForAnswer(id)
       answerClickHandler(item, authorName)
     }, [])
+    const answerCountToArray = (answerCount: number) => {
+      const answerCountArray = [1]
+
+      if (answerCount > 1)
+        for (let i = 2; i <= answerCount && i < 6; i++) {
+          answerCountArray.push(i)
+        }
+
+      return answerCountArray
+    }
+    const { switcher } = useTriggerAddTimeout(answerIsLoading, 100)
 
     return (
       <div className={styles.mainContainer}>
@@ -150,12 +165,17 @@ export const SomeComment = memo(
               <div className={styles.line}></div>{' '}
               {openAnswers && answerDownloadCount <= 0 ? t('HideAnswers') : t('ViewAnswers')} (
               {answerDownloadCount > 0 ? answerDownloadCount : answerCount})
+              <div className={styles.loader}>
+                {(answerIsLoading || nextPageLoading) && <CircularLoader />}
+              </div>
             </div>
           )}
           <div
             className={openAnswers ? clsx(styles.answersBlock, styles.margin) : styles.answersBlock}
           >
+            {switcher && answerCountToArray(answerCount).map(n => <Skeleton key={n} />)}
             {openAnswers &&
+              !switcher &&
               answers?.map(answer => (
                 <div className={styles.someAnswer} key={answer.id}>
                   <SomeAnswer
@@ -168,7 +188,6 @@ export const SomeComment = memo(
                   />
                 </div>
               ))}
-            <div className={styles.loader}>{answerIsLoading && <CircularLoader />}</div>
           </div>
         </div>
       </div>

@@ -31,10 +31,25 @@
         color: var(--color-info-900);
       }
     }
-    .addCommentInput {
-      display: flex;
-      justify-content: center;
-      padding: 8px 0;
+    .inputContainer {
+      position: relative;
+      width: 100%;
+      .addCommentInput {
+        display: flex;
+        justify-content: center;
+        padding: 8px 0;
+      }
+
+      .loading {
+        opacity: 0.5;
+      }
+      .loaderContainer {
+        opacity: 0.5;
+        filter: grayscale(100%);
+        position: absolute;
+        top: calc(50% - 12px);
+        left: 50%;
+      }
     }
   }
 }
