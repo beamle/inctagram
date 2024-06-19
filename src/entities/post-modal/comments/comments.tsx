@@ -197,7 +197,7 @@ export const Comments = (props: PostResponseType) => {
             </>
           )
         })}
-        <div ref={bottomRef}>
+        <div ref={bottomRef} className={styles.skeleton}>
           {(isLoading || nextPageLoading) && [1, 2, 3, 4, 5, 6].map(n => <Skeleton key={n} />)}
         </div>
       </div>

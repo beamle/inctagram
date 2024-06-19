@@ -8,6 +8,8 @@
   width: 100%;
 
   .avatarContainer {
+    display: flex;
+    flex-shrink: 0;
     cursor: pointer;
 
     position: relative;
@@ -81,6 +83,7 @@
 }
 .answers {
   display: inline-flex;
+  position: relative;
   color: var(--color-light-900);
   font-size: var(--font-size-xs);
   cursor: pointer;
@@ -91,12 +94,13 @@
     width: 24px;
     border-bottom: 1px solid var(--color-light-900);
   }
-}
-.loader {
-  width: 100%;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
+  .loader {
+    position: absolute;
+    left: 150px;
+    margin-left: 48px;
+    filter: grayscale(100%);
+    opacity: 0.5;
+  }
 }
 .answersContainer {
   width: 100%;

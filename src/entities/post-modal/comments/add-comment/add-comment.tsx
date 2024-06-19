@@ -1,6 +1,7 @@
 import React, { memo, useEffect, useRef, useState } from 'react'
 
 import { yupResolver } from '@hookform/resolvers/yup'
+import { clsx } from 'clsx'
 import { useTranslation } from 'next-i18next'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
@@ -13,7 +14,7 @@ import {
   useCreatePostCommentMutation,
 } from '@/shared/api/services/posts/posts.api'
 import { AnswerType, CommentType } from '@/shared/api/services/posts/posts.api.types'
-import { Button, Input, InputType } from '@/shared/ui'
+import { Button, CircularLoader, Input, InputType } from '@/shared/ui'
 
 export const AddComment = memo(
   ({
@@ -38,8 +39,9 @@ export const AddComment = memo(
         content: '',
       },
     })
-    const [createPostComment] = useCreatePostCommentMutation()
-    const [createPostCommentAnswer] = useCreatePostCommentAnswerMutation()
+    const [createPostComment, { isLoading: isCommentLading }] = useCreatePostCommentMutation()
+    const [createPostCommentAnswer, { isLoading: isAnswerLading }] =
+      useCreatePostCommentAnswerMutation()
     const { t } = useTranslation('common', { keyPrefix: 'Post' })
     const createComment = (content: string) =>
       createPostComment({ postId: id, content })
@@ -62,7 +64,7 @@ export const AddComment = memo(
           addNewAnswer({ ...res, likeCount: 0, isLiked: false })
         })
         .catch(error => {
-          const errMessage = error.data.messages[0].message
+          const errMessage = error.data?.messages[0].message
 
           toast.error(errMessage)
         })
@@ -92,19 +94,30 @@ export const AddComment = memo(
     return (
       <div className={styles.addCommentContainer}>
         <form className={styles.addCommentForm} onSubmit={handleSubmit(onSubmit)}>
-          <Input
-            as={'textarea'}
-            className={styles.addCommentInput}
-            placeholder={t('AddComment')}
-            type={InputType.FRAMELESS}
-            {...rest}
-            value={currentValue}
-            ref={e => {
-              ref(e)
-              textareaRef.current = e
-            }}
-            onChange={e => setCurrentValue(e.target.value)}
-          />
+          <div className={styles.inputContainer}>
+            {(isCommentLading || isAnswerLading) && (
+              <div className={styles.loaderContainer}>
+                <CircularLoader />
+              </div>
+            )}
+            <Input
+              as={'textarea'}
+              className={
+                isCommentLading || isAnswerLading
+                  ? clsx(styles.addCommentInput, styles.loading)
+                  : styles.addCommentInput
+              }
+              placeholder={t('AddComment')}
+              type={InputType.FRAMELESS}
+              {...rest}
+              value={currentValue}
+              ref={e => {
+                ref(e)
+                textareaRef.current = e
+              }}
+              onChange={e => setCurrentValue(e.target.value)}
+            />
+          </div>
           <Button className={styles.addCommentButton} disabled={!currentValue}>
             {t('Publish')}
           </Button>
