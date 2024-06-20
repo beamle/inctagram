@@ -142,6 +142,7 @@ export const SomeComment = memo(
       return answerCountArray
     }
     const { switcher } = useTriggerAddTimeout(answerIsLoading, 100)
+    const authorClickHandler = () => router.push(`${RoutersPath.profile}/${from.id}`)
 
     return (
       <div className={styles.mainContainer}>
@@ -151,7 +152,7 @@ export const SomeComment = memo(
             from={from}
             likeClickHandler={likeClickHandler}
             createdAt={commentCreatedAt}
-            authorClickHandler={() => router.push(`${RoutersPath.profile}/${from.id}`)}
+            authorClickHandler={authorClickHandler}
             isLoggedIn={isLoggedIn}
             isLiked={isLiked}
             likeCount={likeCount}
@@ -170,9 +171,7 @@ export const SomeComment = memo(
               </div>
             </div>
           )}
-          <div
-            className={openAnswers ? clsx(styles.answersBlock, styles.margin) : styles.answersBlock}
-          >
+          <div className={clsx(styles.answersBlock, openAnswers && styles.margin)}>
             {switcher && answerCountToArray(answerCount).map(n => <Skeleton key={n} />)}
             {openAnswers &&
               !switcher &&

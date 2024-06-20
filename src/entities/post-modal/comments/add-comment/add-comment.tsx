@@ -39,8 +39,8 @@ export const AddComment = memo(
         content: '',
       },
     })
-    const [createPostComment, { isLoading: isCommentLading }] = useCreatePostCommentMutation()
-    const [createPostCommentAnswer, { isLoading: isAnswerLading }] =
+    const [createPostComment, { isLoading: isCommentLoading }] = useCreatePostCommentMutation()
+    const [createPostCommentAnswer, { isLoading: isAnswerLoading }] =
       useCreatePostCommentAnswerMutation()
     const { t } = useTranslation('common', { keyPrefix: 'Post' })
     const createComment = (content: string) =>
@@ -90,23 +90,24 @@ export const AddComment = memo(
           : (textareaRef.current.style.height = '72px')
       }
     }, [currentValue])
+    const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setCurrentValue(e.target.value)
+    const inputClass =
+      isCommentLoading || isAnswerLoading
+        ? clsx(styles.addCommentInput, styles.loading)
+        : styles.addCommentInput
 
     return (
       <div className={styles.addCommentContainer}>
         <form className={styles.addCommentForm} onSubmit={handleSubmit(onSubmit)}>
           <div className={styles.inputContainer}>
-            {(isCommentLading || isAnswerLading) && (
+            {(isCommentLoading || isAnswerLoading) && (
               <div className={styles.loaderContainer}>
                 <CircularLoader />
               </div>
             )}
             <Input
               as={'textarea'}
-              className={
-                isCommentLading || isAnswerLading
-                  ? clsx(styles.addCommentInput, styles.loading)
-                  : styles.addCommentInput
-              }
+              className={inputClass}
               placeholder={t('AddComment')}
               type={InputType.FRAMELESS}
               {...rest}
@@ -115,7 +116,7 @@ export const AddComment = memo(
                 ref(e)
                 textareaRef.current = e
               }}
-              onChange={e => setCurrentValue(e.target.value)}
+              onChange={onChange}
             />
           </div>
           <Button className={styles.addCommentButton} disabled={!currentValue}>

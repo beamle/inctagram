@@ -169,19 +169,19 @@ export const Comments = (props: PostResponseType) => {
       <div className={styles.allComments} ref={newCommentRef}>
         <Description {...props} />
         {sortedComments?.map(item => {
+          const refCallback = (node: HTMLDivElement | null) => {
+            const map = getMap() as Map<number, HTMLDivElement>
+
+            if (node) {
+              map.set(item.id, node)
+            } else {
+              map.delete(item.id)
+            }
+          }
+
           return (
             <>
-              <div
-                ref={node => {
-                  const map = getMap() as Map<number, HTMLDivElement>
-
-                  if (node) {
-                    map.set(item.id, node)
-                  } else {
-                    map.delete(item.id)
-                  }
-                }}
-              >
+              <div ref={refCallback}>
                 <SomeComment
                   item={item}
                   key={item.id}
