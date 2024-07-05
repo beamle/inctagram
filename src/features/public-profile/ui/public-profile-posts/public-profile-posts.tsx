@@ -19,7 +19,7 @@ export const PublicProfilePosts = (post: Props) => {
   const notImageClass = clsx(style.postImage, !post.images[0]?.url && style.postNotImage)
 
   const openModal = () => {
-    router.push(`${RoutersPath.profile}/${post.ownerId}/?data=${post.id}`)
+    void router.push(`${RoutersPath.profile}/${post.ownerId}/?data=${post.id}`)
     setIsPostActive(!isPostActive)
   }
 

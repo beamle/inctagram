@@ -1,5 +1,6 @@
 import React from 'react'
 
+import { clsx } from 'clsx'
 import Image from 'next/image'
 import { useTranslation } from 'next-i18next'
 
@@ -8,6 +9,7 @@ import { AuthorType } from '@/shared/api/services/posts/posts.api.types'
 import noImage from '@/shared/assets/icons/avatar-profile/not-photo.png'
 import { LikeIcon } from '@/shared/assets/icons/icons/like-icon'
 import { LikeRedIcon } from '@/shared/assets/icons/icons/like-red-icon'
+
 export type CommentAndAnswerProps = {
   authorClickHandler: () => void
   createdAt: string
@@ -65,7 +67,10 @@ export const CommentAndAnswer = ({
             </span>
             {editedContent}
           </div>
-          <div className={styles.commentLikeContainer} onClick={likeClickHandler}>
+          <div
+            className={clsx(styles.commentLikeContainer, !isLiked && styles.icon)}
+            onClick={likeClickHandler}
+          >
             {isLiked ? <LikeRedIcon /> : <LikeIcon />}
           </div>
         </div>

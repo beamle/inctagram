@@ -134,6 +134,9 @@ export const authApi = createApi({
       logout: build.mutation<LogoutType, void>({
         query: () => ({
           method: 'POST',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken') as string}`,
+          },
           url: 'auth/logout',
           credentials: 'include',
         }),

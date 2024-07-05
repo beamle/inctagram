@@ -1,90 +1,95 @@
-.postContainer {
-  position: fixed;
-  inset: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background-color: rgb(0 0 0 / 50%);
-}
-
-.closeIconContainer {
-  cursor: pointer;
-  position: absolute;
-  top: -50px;
-  right: -80px;
-}
-
-.post {
+.mainContainer {
   position: relative;
+  z-index: 2;
+  .postContainer {
+    position: fixed;
+    inset: 0;
 
-  display: flex;
-  flex-direction: row;
-  background-color: var(--color-dark-300);
-  border: 1px solid var(--color-dark-100);
-}
-
-.postPhotoContainer {
-  position: relative;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.postPhoto {
-
-}
-
-.postBodyContainer {
-  display: flex;
-  flex-direction: column;
-
-  width: 482px;
-
-
-  .headerContainer {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
 
-    padding: 10px 24px;
+    background-color: rgb(0 0 0 / 50%);
+  }
 
-    border-bottom: 1px solid var(--color-dark-100);
+  .closeIconContainer {
+    cursor: pointer;
+    position: absolute;
+    top: -50px;
+    right: -80px;
+  }
 
-    .avatarContainer {
+  .post {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    background-color: var(--color-dark-300);
+    border: 1px solid var(--color-dark-100);
+  }
+
+  .postPhotoContainer {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .postPhoto {
+
+  }
+
+  .postBodyContainer {
+    display: flex;
+    flex-direction: column;
+
+    width: 482px;
+
+
+    .headerContainer {
       display: flex;
-      gap: 12px;
       align-items: center;
+      justify-content: space-between;
 
-      .imgContainer {
-        cursor: pointer;
+      padding: 10px 24px;
 
-        position: relative;
+      border-bottom: 1px solid var(--color-dark-100);
 
-        overflow: hidden;
+      .avatarContainer {
         display: flex;
+        gap: 12px;
+        align-items: center;
 
-        width: 36px;
-        height: 36px;
+        .imgContainer {
+          cursor: pointer;
 
-        border-radius: 50px;
+          position: relative;
+
+          overflow: hidden;
+          display: flex;
+
+          width: 36px;
+          height: 36px;
+
+          border-radius: 50px;
+        }
+      }
+
+      button {
+        margin-right: -7px;
       }
     }
+  }
 
-    button {
-      margin-right: -7px;
-    }
+  .userName {
+    font-size: var(--font-size-m);
+    font-weight: 600;
+    color: var(--color-light-100);
   }
 }
-
-.userName {
+.isLoggedIn {
   cursor: pointer;
-  font-size: var(--font-size-m);
-  font-weight: 600;
-  color: var(--color-light-100);
-&:hover {
-  opacity: 0.5;
-}
+  &:hover {
+    opacity: 0.5;
+  }
 }

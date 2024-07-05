@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 
 import * as RDropdownMenu from '@radix-ui/react-dropdown-menu'
+import clsx from 'clsx'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'next-i18next'
@@ -46,9 +47,10 @@ export const PostModal = ({ postData, togglePostModal, profileData }: Props) => 
   const openDeleteModal = () => {
     setIsDeleteModalOpen(true)
   }
+  const userNameClass = clsx(styles.userName, isLoggedIn && styles.isLoggedIn)
 
   return (
-    <>
+    <div className={styles.mainContainer}>
       {isOpenEdit ? (
         <EditDescriptionPost
           profileData={profileData}
@@ -69,7 +71,7 @@ export const PostModal = ({ postData, togglePostModal, profileData }: Props) => 
               <div className={styles.headerContainer}>
                 <div
                   className={styles.avatarContainer}
-                  onClick={() => router.push(`${RoutersPath.profile}/${ownerId}`)}
+                  onClick={() => isLoggedIn && router.push(`${RoutersPath.profile}/${ownerId}`)}
                 >
                   <div className={styles.imgContainer}>
                     <Image
@@ -79,7 +81,7 @@ export const PostModal = ({ postData, togglePostModal, profileData }: Props) => 
                       objectFit="cover"
                     />
                   </div>
-                  <p className={styles.userName}>{username}</p>
+                  <p className={userNameClass}>{username}</p>
                 </div>
                 {isLoggedIn && postData.ownerId === profileData?.id && (
                   <DropdownMenu triggerIcon={<ThreeDots />}>
@@ -109,6 +111,6 @@ export const PostModal = ({ postData, togglePostModal, profileData }: Props) => 
           </div>
         </div>
       )}
-    </>
+    </div>
   )
 }

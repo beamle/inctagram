@@ -1,0 +1,30 @@
+@import '@/shared/styles/media-queries';
+.photoWrapper {
+      @include media-min-small {
+        height: 176px;
+      }
+
+      @include media-min-s-medium {
+        height: 234px;
+      }
+
+      @include media-mobile {
+        height: 108px;
+      }
+
+      all: unset;
+
+      position: relative;
+      z-index: 1;
+
+      width: 100%;
+      min-width: 234px;
+      height: 100%;
+
+      img {
+        object-fit: cover;
+      }
+      .photo {
+        cursor: pointer;
+      }
+    }
