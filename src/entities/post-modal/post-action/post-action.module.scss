@@ -1,0 +1,61 @@
+ .summaryContainer {
+    margin-top: auto;
+    padding: 12px 20px 7px 30px;
+    border-top: 1px solid var(--color-dark-100);
+    font-size: var(--font-size-s);
+
+    .actionsContainer {
+      display: flex;
+      justify-content: space-between;
+      height: 24px;
+      margin-bottom: 12px;
+
+      .likeShareContainer {
+        display: flex;
+        gap: 24px;
+      }
+      .icon {
+        cursor: pointer;
+        &:hover {
+          opacity: 0.5;
+        }
+      }
+      .redIcon {
+        cursor: pointer;
+      }
+    }
+
+    .totalLikes {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      position: relative;
+
+      .totalLikesCount {
+        line-height: var(--line-height-m);
+        color: var(--color-light-100);
+        position: relative;
+      }
+
+      .totalLikesAvatar {
+        border-radius: 24px;
+        background-color: var(--color-info-500);
+        position: absolute;
+        &:hover {
+          cursor: pointer;
+        }
+      }
+    }
+   .noLikes {
+     &:hover {
+       cursor: pointer;
+       opacity: 0.5;
+     }
+   }
+
+    .postDate {
+      font-size: var(--font-size-xs);
+      line-height: var(--line-height-s);
+      color: var(--color-light-900);
+    }
+ }

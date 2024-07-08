@@ -7,8 +7,6 @@
   padding: 10px 24px;
 
   .avatarContainer {
-    cursor: pointer;
-
     position: relative;
 
     overflow: hidden;
@@ -33,12 +31,8 @@
         word-break: break-word;
 
         .descriptionTextName {
-          cursor: pointer;
           margin-right: 0.5rem;
           font-weight: var(--font-weight-bold);
-          &:hover {
-            opacity: 0.5;
-          }
         }
       }
     }
@@ -54,4 +48,12 @@
     }
   }
 }
-
+.isLoggedIn {
+  cursor: pointer;
+  &:hover {
+    opacity: 0.5;
+  }
+}
+.pointer{
+  cursor: pointer;
+}

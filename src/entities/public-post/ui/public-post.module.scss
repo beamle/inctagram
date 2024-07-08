@@ -1,5 +1,5 @@
 .post {
-  max-width: 234px;
+max-width: 234px;
   height: 100%;
 
   .postContentWrapper {
@@ -13,6 +13,10 @@
   }
 
   .postLinkWrapper {
+    width: 100%;
+      display: flex;
+    flex-direction: column;
+    align-items: flex-start;
     img {
       cursor: pointer;
       object-fit: cover;

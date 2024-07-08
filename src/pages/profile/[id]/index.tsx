@@ -1,14 +1,15 @@
 import React from 'react'
 
 import { GetServerSideProps } from 'next'
-import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { Toaster } from 'react-hot-toast'
+import { useSelector } from 'react-redux'
 
 import style from './profile-id.module.scss'
 
-import { PublicProfileData, PublicProfilePosts } from '@/features/public-profile'
-import { publicApi } from '@/shared/api'
+import { SomePost } from '@/entities/some-post/some-post'
+import { PublicProfileData } from '@/features/public-profile'
+import { publicApi, selectIsLoggedIn } from '@/shared/api'
 import {
   PublicProfilePostsResponseType,
   PublicProfileType,
@@ -83,17 +84,15 @@ export const getServerSideProps: GetServerSideProps = wrapper.getServerSideProps
 
 function PublicProfilePage(props: PropsType) {
   const { profileData, postData } = props
-  const router = useRouter()
-  const clickedPostId = Number(router?.query?.data)
 
   const amountPost = postData.items?.length
-  const isAuth = false /* todo не залогинен */
+  const isLoggedIn = useSelector(selectIsLoggedIn)
 
   return (
     <div className={style.publicProfileWrapper}>
       <Toaster position={'bottom-center'} />
       <ContentWrapper className={style.contentWrapper}>
-        {!isAuth && (
+        {isLoggedIn && (
           <div className={style.publicProfileContainer}>
             <div className={style.profileContainer}>
               <PublicProfileData data={profileData} amountPost={amountPost} />
@@ -101,7 +100,12 @@ function PublicProfilePage(props: PropsType) {
             <div className={style.postsContainer}>
               {postData &&
                 postData.items.map(post => (
-                  <PublicProfilePosts key={post.id} clickedPostId={clickedPostId} {...post} />
+                  <SomePost
+                    key={post.id}
+                    p={post}
+                    isLoggedIn={isLoggedIn}
+                    profileData={profileData}
+                  />
                 ))}
             </div>
           </div>

@@ -22,6 +22,9 @@ import {
   GetCommentAnswersRequestType,
   GetCommentAnswersResponseType,
   ChangeCommentAnswerLikeStatusType,
+  ChangePostLikeStatusType,
+  GetPostLikesResponseType,
+  GetPostLikesRequestType,
 } from '@/shared/api/services/posts/posts.api.types'
 
 export const postsApi = createApi({
@@ -32,7 +35,16 @@ export const postsApi = createApi({
       return action.payload[reducerPath]
     }
   },
-  tagTypes: ['editPost', 'deletePost', 'createPost', 'getPostComments', 'getPostCommentAnswers'],
+  tagTypes: [
+    'editPost',
+    'deletePost',
+    'createPost',
+    'getPostComments',
+    'getPostCommentAnswers',
+    'getPostLikes',
+    'getPublicPost',
+    'getAllPublicPosts',
+  ],
   endpoints: build => {
     return {
       createPost: build.mutation<PostResponseType, PostsType>({
@@ -52,25 +64,20 @@ export const postsApi = createApi({
         query: postId => {
           return {
             method: 'GET',
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('accessToken') as string}`,
-            },
             url: `public-posts/${postId}`,
           }
         },
-        providesTags: ['editPost'],
+        providesTags: ['editPost', 'getPublicPost'],
       }),
       getAllPublicPosts: build.query<GetAllPublicPostsResponseType, GetAllPostsArgs>({
         query: params => {
           return {
             method: 'GET',
-            // headers: {
-            //   Authorization: `Bearer ${localStorage.getItem('accessToken') as string}`,
-            // },
             url: `public-posts/all`,
             params,
           }
         },
+        providesTags: ['getAllPublicPosts'],
       }),
       deletePost: build.mutation<void, number>({
         query: postId => {
@@ -124,6 +131,32 @@ export const postsApi = createApi({
           }
         },
         invalidatesTags: ['editPost'],
+      }),
+      getPostLikes: build.query<GetPostLikesResponseType, GetPostLikesRequestType>({
+        query: ({ postId, search, pageSize, pageNumber, cursor }) => {
+          return {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('accessToken') as string}`,
+            },
+            url: `posts/${postId}/likes`,
+            params: { search, pageSize, pageNumber, cursor },
+          }
+        },
+        providesTags: ['getPostLikes'],
+      }),
+      changePostLikeStatus: build.mutation<void, ChangePostLikeStatusType>({
+        query: ({ postId, likeStatus }) => {
+          return {
+            method: 'PUT',
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('accessToken') as string}`,
+            },
+            url: `posts/${postId}/like-status`,
+            body: { likeStatus },
+          }
+        },
+        invalidatesTags: ['getPostLikes'],
       }),
       createPostComment: build.mutation<
         CreatePostCommentResponseType,
@@ -233,11 +266,12 @@ export const {
   useLazyGetPublicUserPostsQuery,
   useDeletePostMutation,
   useUpdatePostMutation,
-  useGetAllPublicPostsQuery,
   useCreatePostCommentMutation,
   useCreatePostCommentAnswerMutation,
   useLazyGetPostCommentsQuery,
   useChangeCommentLikeStatusMutation,
+  useChangePostLikeStatusMutation,
   useChangeCommentAnswerLikeStatusMutation,
   useLazyGetPostCommentAnswersQuery,
+  useLazyGetPostLikesQuery,
 } = postsApi

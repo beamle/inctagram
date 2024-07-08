@@ -270,7 +270,8 @@
     "Answer": "Answer",
     "ViewAnswers": "View answers",
     "HideAnswers": "Hide answers",
-    "Likes": "Likes",
+    "Likes": "likes",
+    "NoLikes": "Be the first to like this",
     "AnonymousUser": "Anonymous User",
     "SecondsAgo": {
       "one": "second ago",

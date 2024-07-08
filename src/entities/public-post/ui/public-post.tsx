@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect } from 'react'
 
 import Image from 'next/image'
 import { useRouter } from 'next/router'
@@ -7,8 +7,9 @@ import { useSelector } from 'react-redux'
 
 import s from './public-post.module.scss'
 
-import { PostModal } from '@/entities/post-modal/post-modal'
+import { SomePost } from '@/entities/some-post/some-post'
 import { PostResponseType, selectIsLoggedIn } from '@/shared/api'
+import { useLazyGetProfileUserQuery } from '@/shared/api/services/profile/profile.api'
 import noImage from '@/shared/assets/icons/image/no-image.svg'
 import { RoutersPath } from '@/shared/constants/paths'
 import { useTruncateText } from '@/shared/hooks'
@@ -16,7 +17,6 @@ import { findDate } from '@/shared/utils/find-date'
 
 export const PublicPost = (post: PostResponseType) => {
   const {
-    images,
     owner: { lastName, firstName },
     avatarOwner,
     description,
@@ -26,7 +26,6 @@ export const PublicPost = (post: PostResponseType) => {
   } = post
 
   const { t } = useTranslation('common', { keyPrefix: 'Post' })
-  const [isPostActive, setIsPostActive] = useState(false)
   const postCreatedAt = findDate.difference(createdAt)
   const router = useRouter()
 
@@ -35,26 +34,21 @@ export const PublicPost = (post: PostResponseType) => {
     80
   )
   const isLoggedIn = useSelector(selectIsLoggedIn)
-  const togglePostModal = (id: number) => {
-    if (!isLoggedIn) {
-      router.push(`${RoutersPath.profile}/${ownerId}/?data=${id}`)
-    } else {
-      setIsPostActive(!isPostActive)
-    }
-  }
 
   const userName = `${firstName} ${lastName}` || t('AnonymousUser')
+  const [getProfile, { data: profileData }] = useLazyGetProfileUserQuery()
+
+  useEffect(() => {
+    isLoggedIn &&
+      getProfile()
+        .unwrap()
+        .catch(() => {})
+  }, [isLoggedIn])
 
   return (
     <div className={s.post} key={id}>
       <div className={s.postLinkWrapper}>
-        <Image
-          src={images[0]?.url}
-          width={234}
-          height={240}
-          alt="Picture of the post"
-          onClick={() => togglePostModal(id)}
-        />
+        <SomePost p={post} isLoggedIn={isLoggedIn} profileData={profileData ?? undefined} />
         <div
           className={s.postContentWrapper}
           onClick={() => router.push(`${RoutersPath.profile}/${ownerId}`)}
@@ -72,7 +66,6 @@ export const PublicPost = (post: PostResponseType) => {
           </span>
         )}
       </p>
-      {isPostActive && <PostModal postData={post} togglePostModal={() => togglePostModal(id)} />}
     </div>
   )
 }

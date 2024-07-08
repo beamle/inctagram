@@ -70,16 +70,17 @@ export type GetCommentsRequestType = {
   sortBy?: string
   sortDirection?: 'desc' | 'asc'
 }
+type Avatars = {
+  url: string
+  width: number
+  height: number
+  fileSize: number
+  createdAt: string
+}
 export type AuthorType = {
   id: number
   username: string
-  avatars: Array<{
-    url: string
-    width: number
-    height: number
-    fileSize: number
-    createdAt: string
-  }>
+  avatars: Array<Avatars>
 }
 export type CommentType = {
   id: number
@@ -127,10 +128,13 @@ export type CreatePostCommentResponseType = {
   createdAt: string
 }
 
-export type ChangeCommentLikeStatusType = {
+export type ChangePostLikeStatusType = {
   postId: number
-  commentId: number | undefined
   likeStatus: 'NONE' | 'LIKE' | 'DISLIKE'
+}
+
+export type ChangeCommentLikeStatusType = ChangePostLikeStatusType & {
+  commentId: number | undefined
 }
 export type GetCommentAnswersRequestType = GetCommentsRequestType & { commentId: number }
 export type ChangeCommentAnswerLikeStatusType = ChangeCommentLikeStatusType & { answerId: number }
@@ -147,4 +151,29 @@ export type AnswerType = {
   createdAt: string
   likeCount: number
   isLiked: boolean
+}
+export type GetPostLikesRequestType = {
+  postId: number
+  search?: string
+  pageSize?: number
+  pageNumber?: number
+  cursor?: number
+}
+type LikeAuthorType = {
+  id: number
+  userId: number
+  userName: string
+  createdAt: string
+  avatars: Array<Avatars>
+  isFollowing: boolean
+  isFollowedBy: boolean
+}
+export type GetPostLikesResponseType = {
+  pageSize: number
+  totalCount: number
+  items: Array<LikeAuthorType>
+}
+export type PostLikeAvatar = {
+  id?: number | undefined
+  url?: string | undefined
 }

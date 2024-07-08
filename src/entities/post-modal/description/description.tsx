@@ -1,5 +1,6 @@
 import React from 'react'
 
+import clsx from 'clsx'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 
@@ -16,15 +17,18 @@ export const Description = ({
   userName,
   updatedAt,
   description,
-}: PostResponseType) => {
+  isLoggedIn,
+}: PostResponseType & { isLoggedIn: boolean }) => {
   const router = useRouter()
   const postUpdatedAt = findDate.difference(updatedAt)
+  const textNameClass = clsx(styles.descriptionTextName, isLoggedIn && styles.isLoggedIn)
+  const avatarClass = clsx(styles.avatarContainer, isLoggedIn && styles.pointer)
 
   return (
     <div className={styles.descriptionContainer}>
       <div
-        className={styles.avatarContainer}
-        onClick={() => router.push(`${RoutersPath.profile}/${ownerId}`)}
+        className={avatarClass}
+        onClick={() => isLoggedIn && router.push(`${RoutersPath.profile}/${ownerId}`)}
       >
         <Image src={avatarOwner || noImage} alt={'avatar'} objectFit="cover" fill={true} />
       </div>
@@ -32,8 +36,8 @@ export const Description = ({
         <div className={styles.descriptionTextContainer}>
           <p className={styles.descriptionText}>
             <span
-              className={styles.descriptionTextName}
-              onClick={() => router.push(`${RoutersPath.profile}/${ownerId}`)}
+              className={textNameClass}
+              onClick={() => isLoggedIn && router.push(`${RoutersPath.profile}/${ownerId}`)}
             >
               <strong>{userName}</strong>
             </span>

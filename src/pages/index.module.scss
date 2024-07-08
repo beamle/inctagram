@@ -5,10 +5,11 @@
     gap: 36px;
 
     .postsContainer {
+      width: 100%;
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
-      justify-content: center;
+      justify-content: space-between;
     }
   }
 }
