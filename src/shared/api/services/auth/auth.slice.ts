@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 import { authApi } from '@/shared/api'
 
@@ -8,7 +8,11 @@ const authSlice = createSlice({
     isLoggedIn: false,
     isAdminLoggedIn: false,
   },
-  reducers: {},
+  reducers: {
+    setIsLoggedIn(state, action: PayloadAction<boolean>) {
+      state.isLoggedIn = action.payload
+    },
+  },
   extraReducers: builder => {
     builder.addMatcher(authApi.endpoints.login.matchFulfilled, state => {
       state.isLoggedIn = true
@@ -26,3 +30,4 @@ const authSlice = createSlice({
 })
 
 export const authReducer = authSlice.reducer
+export const { setIsLoggedIn } = authSlice.actions

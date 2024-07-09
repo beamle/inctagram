@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import styles from './post-action.module.scss'
 
 import { selectIsLoggedIn } from '@/shared/api'
+import { setIsLoggedIn } from '@/shared/api/services/auth/auth.slice'
 import {
   selectIsPostLiked,
   selectLikeAvatar,
@@ -35,10 +36,10 @@ type Props = {
 
 export const PostAction = memo((props: Props) => {
   const { createdAt, id } = props
-  const userAvatar = useSelector(selectLikeAvatar) as PostLikeAvatar
+  const userAvatar = useSelector(selectLikeAvatar)
   const dispatch = useDispatch()
-  const setLikesCount = (likesCount: number) => dispatch(setPostLikesCount(likesCount))
-  const setIsLiked = (isLiked: boolean) => dispatch(setIsPostLiked(isLiked))
+  const setLikesCount = (likesCount: number | null) => dispatch(setPostLikesCount(likesCount))
+  const setIsLiked = (isLiked: boolean | null) => dispatch(setIsPostLiked(isLiked))
   const setLikeAvatars = (threeLikeAvatars: Array<PostLikeAvatar> | null) =>
     dispatch(setThreeLikeAvatars(threeLikeAvatars))
   const isLoggedIn = useSelector(selectIsLoggedIn)
@@ -52,23 +53,24 @@ export const PostAction = memo((props: Props) => {
   const [changePostLikeStatus, { isLoading: changeStatusLoading }] =
     useChangePostLikeStatusMutation()
   const onLikeClickHandler = () => {
-    if (!changeStatusLoading) {
-      setIsLiked(!isLiked)
+    if (!changeStatusLoading && isLoggedIn) {
       likesCount !== null
         ? setLikesCount(isLiked ? likesCount - 1 : likesCount + 1)
         : setLikesCount(1)
-      !isLiked
-        ? setLikeAvatars(threeLikeAvatars ? [userAvatar, ...threeLikeAvatars] : [userAvatar])
-        : setLikeAvatars(threeLikeAvatars?.filter(item => item.id !== userAvatar?.id) ?? null)
+      setIsLiked(!isLiked)
+      !isLiked && userAvatar
+        ? setLikeAvatars(threeLikeAvatars ? [...threeLikeAvatars, userAvatar] : [userAvatar])
+        : setLikeAvatars(threeLikeAvatars?.filter(item => item?.id !== userAvatar?.id) ?? null)
       changePostLikeStatus({ postId: id, likeStatus: isLiked ? 'DISLIKE' : 'LIKE' })
         .unwrap()
-        .catch(() => {
-          setIsLiked(!isLiked)
-          likesCount !== null ? setLikesCount(isLiked ? likesCount + 1 : likesCount - 1) : undefined
-          !isLiked
-            ? setLikeAvatars(threeLikeAvatars?.filter(item => item.id !== userAvatar?.id) ?? null)
-            : setLikeAvatars(threeLikeAvatars ? [userAvatar, ...threeLikeAvatars] : [userAvatar])
-          toast.error(tError('SomethingWentWrong'))
+        .catch(error => {
+          setLikesCount(likesCount)
+          setIsLiked(isLiked)
+          setLikeAvatars(threeLikeAvatars)
+          if (error.status == 401) {
+            dispatch(setIsLoggedIn(false))
+            toast.error(tError('NotAuthorization'))
+          } else toast.error(tError('SomethingWentWrong'))
         })
     }
   }

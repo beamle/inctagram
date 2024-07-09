@@ -1,15 +1,16 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import { GetServerSideProps } from 'next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { Toaster } from 'react-hot-toast'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import style from './profile-id.module.scss'
 
 import { SomePost } from '@/entities/some-post/some-post'
 import { PublicProfileData } from '@/features/public-profile'
 import { publicApi, selectIsLoggedIn } from '@/shared/api'
+import { setLikeAvatar } from '@/shared/api/services/posts/post.slice'
 import {
   PublicProfilePostsResponseType,
   PublicProfileType,
@@ -87,6 +88,11 @@ function PublicProfilePage(props: PropsType) {
 
   const amountPost = postData.items?.length
   const isLoggedIn = useSelector(selectIsLoggedIn)
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    dispatch(setLikeAvatar({ id: profileData?.id, url: profileData?.avatars[1]?.url }))
+  }, [profileData])
 
   return (
     <div className={style.publicProfileWrapper}>

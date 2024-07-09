@@ -41,14 +41,13 @@ function Profile() {
   const posts = userPost?.items || []
   const dispatch = useDispatch()
 
-  dispatch(setLikeAvatar({ id: profileData?.id, url: profileData?.avatars[1]?.url }))
-
   useEffect(() => {
     getProfile()
       .unwrap()
       .then(res => {
         if (res.id) {
-          setUserId(res.id)
+          setUserId(res?.id)
+          dispatch(setLikeAvatar({ id: res?.id, url: res?.avatars[1]?.url }))
         }
       })
       .catch(() => {})

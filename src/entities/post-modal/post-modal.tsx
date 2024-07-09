@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import * as RDropdownMenu from '@radix-ui/react-dropdown-menu'
 import clsx from 'clsx'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'next-i18next'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { Comments } from '@/entities/post-modal/comments/comments'
 import styles from '@/entities/post-modal/post-modal.module.scss'
@@ -15,6 +15,11 @@ import { DeletePost } from '@/features/post/ui/icons/delete-post'
 import { EditPost } from '@/features/post/ui/icons/edit-post'
 import { PostImages } from '@/features/post/ui/post-images-modal/post-images'
 import { selectIsLoggedIn } from '@/shared/api'
+import {
+  setIsPostLiked,
+  setPostLikesCount,
+  setThreeLikeAvatars,
+} from '@/shared/api/services/posts/post.slice'
 import { PostResponseType } from '@/shared/api/services/posts/posts.api.types'
 import { ProfileUserType } from '@/shared/api/services/profile/profile.api.types'
 import noImage from '@/shared/assets/icons/avatar-profile/not-photo.png'
@@ -48,6 +53,15 @@ export const PostModal = ({ postData, togglePostModal, profileData }: Props) => 
     setIsDeleteModalOpen(true)
   }
   const userNameClass = clsx(styles.userName, isLoggedIn && styles.isLoggedIn)
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    return () => {
+      dispatch(setIsPostLiked(null))
+      dispatch(setPostLikesCount(null))
+      dispatch(setThreeLikeAvatars(null))
+    }
+  }, [])
 
   return (
     <div className={styles.mainContainer}>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 import Image from 'next/image'
 import { useTranslation } from 'next-i18next'
@@ -13,6 +13,7 @@ import {
   ProfileUserType,
   useLazyGetPublicPostQuery,
 } from '@/shared/api'
+import { setIsLoggedIn } from '@/shared/api/services/auth/auth.slice'
 import {
   setIsPostLiked,
   setPostLikesCount,
@@ -41,14 +42,6 @@ export const SomePost = (props: Props) => {
     dispatch(setIsPostLiked(isLiked))
     setIsLikesLoading(false)
   }
-
-  useEffect(() => {
-    return () => {
-      dispatch(setIsPostLiked(null))
-      dispatch(setPostLikesCount(null))
-      dispatch(setThreeLikeAvatars(null))
-    }
-  }, [])
   const postImageClickHandler = () => {
     if (isLoggedIn) {
       getPostLikes({
@@ -84,13 +77,19 @@ export const SomePost = (props: Props) => {
                 if (res.totalCount) toggleIsLiked(true)
                 else toggleIsLiked(false)
               })
-              .catch(() => {
-                toast.error(tError('SomethingWentWrong'))
+              .catch(error => {
+                if (error.status == 401) {
+                  dispatch(setIsLoggedIn(false))
+                  toast.error(tError('NotAuthorization'))
+                } else toast.error(tError('SomethingWentWrong'))
               })
           }
         })
-        .catch(() => {
-          toast.error(tError('SomethingWentWrong'))
+        .catch(error => {
+          if (error.status == 401) {
+            dispatch(setIsLoggedIn(false))
+            toast.error(tError('NotAuthorization'))
+          } else toast.error(tError('SomethingWentWrong'))
         })
     } else {
       dispatch(setPostLikesCount(p.likesCount))
