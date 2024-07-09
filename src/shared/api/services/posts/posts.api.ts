@@ -156,7 +156,6 @@ export const postsApi = createApi({
             body: { likeStatus },
           }
         },
-        invalidatesTags: ['getPostLikes'],
       }),
       createPostComment: build.mutation<
         CreatePostCommentResponseType,

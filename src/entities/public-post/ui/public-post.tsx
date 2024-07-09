@@ -3,12 +3,13 @@ import React, { useEffect } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'next-i18next'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import s from './public-post.module.scss'
 
 import { SomePost } from '@/entities/some-post/some-post'
 import { PostResponseType, selectIsLoggedIn } from '@/shared/api'
+import { setLikeAvatar } from '@/shared/api/services/posts/post.slice'
 import { useLazyGetProfileUserQuery } from '@/shared/api/services/profile/profile.api'
 import noImage from '@/shared/assets/icons/image/no-image.svg'
 import { RoutersPath } from '@/shared/constants/paths'
@@ -37,11 +38,15 @@ export const PublicPost = (post: PostResponseType) => {
 
   const userName = `${firstName} ${lastName}` || t('AnonymousUser')
   const [getProfile, { data: profileData }] = useLazyGetProfileUserQuery()
+  const dispatch = useDispatch()
 
   useEffect(() => {
     isLoggedIn &&
       getProfile()
         .unwrap()
+        .then(res => {
+          dispatch(setLikeAvatar({ id: res?.id, url: res?.avatars[1]?.url }))
+        })
         .catch(() => {})
   }, [isLoggedIn])
 
