@@ -34,7 +34,7 @@ function Profile() {
   const [pageCount, setPageCount] = useState(1)
   const [userId, setUserId] = useState<number | null>(null)
   const [totalCount, setTotalCount] = useState(postsAmount)
-  const [endCursorPostId, setEndCursorPostId] = useState(0)
+  const [endCursorPostId, setEndCursorPostId] = useState<number>(0)
   const [isFetching, setIsFetching] = useState(true)
   const isLoggedIn = useSelector(selectIsLoggedIn)
 
