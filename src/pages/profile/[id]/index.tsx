@@ -11,6 +11,7 @@ import { SomePost } from '@/entities/some-post/some-post'
 import { PublicProfileData } from '@/features/public-profile'
 import { publicApi, selectIsLoggedIn } from '@/shared/api'
 import { setLikeAvatar } from '@/shared/api/services/posts/post.slice'
+import { useLazyGetProfileUserQuery } from '@/shared/api/services/profile/profile.api'
 import {
   PublicProfilePostsResponseType,
   PublicProfileType,
@@ -89,10 +90,17 @@ function PublicProfilePage(props: PropsType) {
   const amountPost = postData.items?.length
   const isLoggedIn = useSelector(selectIsLoggedIn)
   const dispatch = useDispatch()
+  const [getProfileUser, { data: userProfileData }] = useLazyGetProfileUserQuery()
 
   useEffect(() => {
-    dispatch(setLikeAvatar({ id: profileData?.id, url: profileData?.avatars[1]?.url }))
-  }, [profileData])
+    if (isLoggedIn) {
+      getProfileUser()
+        .unwrap()
+        .then(res => {
+          dispatch(setLikeAvatar({ id: res?.id, url: res?.avatars[1]?.url }))
+        })
+    }
+  }, [isLoggedIn])
 
   return (
     <div className={style.publicProfileWrapper}>
@@ -110,7 +118,7 @@ function PublicProfilePage(props: PropsType) {
                     key={post.id}
                     p={post}
                     isLoggedIn={isLoggedIn}
-                    profileData={profileData}
+                    profileData={userProfileData}
                   />
                 ))}
             </div>
