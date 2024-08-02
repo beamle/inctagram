@@ -1,8 +1,16 @@
-import { ReactNode } from 'react'
+import { ElementType, useEffect, useState } from 'react'
 
 import dynamic from 'next/dynamic'
 
-// eslint-disable-next-line import/no-unresolved
-const Messenger = dynamic(() => import('Messenger/messenger-component'), { ssr: false })
+export const MessengerApp = (props: any) => {
+  const [Component, setComponent] = useState<ElementType | null>(null)
 
-export const MessengerApp = (props: any) => <Messenger {...props} />
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // eslint-disable-next-line import/no-unresolved
+      setComponent(dynamic(() => import('Messenger/messenger-component'), { ssr: false }))
+    }
+  }, [])
+
+  return <div>{Component && <Component {...props} />}</div>
+}
