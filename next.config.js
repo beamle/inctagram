@@ -6,22 +6,17 @@ const nextConfig = {
   webpack(config, options) {
     const { isServer } = options
 
-    config.plugins.push(
-      new NextFederationPlugin({
-        name: 'host_inctagram',
-        remotes: {
-          Messenger: 'inctagram_remote_messenger_app@http://localhost:3001/remoteEntry.js',
-        },
-        filename: 'static/chunks/remoteEntry.js',
-        exposes: {
-          // './title': './components/exposedTitle.js',
-          // './checkout': './pages/checkout',
-        },
-        shared: {
-          // whatever else
-        },
-      })
-    )
+    if (!isServer) {
+      config.plugins.push(
+        new NextFederationPlugin({
+          name: 'host_inctagram',
+          remotes: {
+            Messenger: 'inctagram_remote_messenger_app@http://localhost:3001/remoteEntry.js',
+          },
+          filename: 'static/chunks/remoteEntry.js',
+        })
+      )
+    }
 
     return config
   },
