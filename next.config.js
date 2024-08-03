@@ -1,11 +1,9 @@
-const NextFederationPlugin = require('@module-federation/nextjs-mf')
+//const NextFederationPlugin = require('@module-federation/nextjs-mf')
 /** @type {import('next').NextConfig} */
 // const { i18n } = require('../../../next-i18next.config')
 
 const nextConfig = {
-  webpack(config, options) {
-    const { isServer } = options
-
+  /* webpack(config, { isServer }) {
     if (!isServer) {
       config.plugins.push(
         new NextFederationPlugin({
@@ -19,7 +17,7 @@ const nextConfig = {
     }
 
     return config
-  },
+  },*/
   images: {
     remotePatterns: [
       {
