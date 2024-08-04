@@ -21,12 +21,12 @@ type Props = {
   imgStyle?: CSSProperties
 }
 export const PostImages = ({ postData, wrapperStyle, imgStyle }: Props) => {
-  const [images, setImages] = useState<ImageDataType[]>([])
+  const [images, setImages] = useState<ImageDataType[] | undefined>(undefined)
   const currentIndex = useSelector(selectCurrentPhotoIndex)
   const dispatch = useDispatch()
 
   useEffect(() => {
-    if (postData?.images && postData.images.length > 0) {
+    if (postData?.images && postData.images.length >= 0) {
       setImages(filterBestQualityImages(postData.images))
       dispatch(setCurrentPhotoIndex(0))
       dispatch(setPhotosCount(postData.images.length))
@@ -35,10 +35,10 @@ export const PostImages = ({ postData, wrapperStyle, imgStyle }: Props) => {
 
   return (
     <div className={style.sliderWrapper} style={{ ...wrapperStyle }}>
-      {images.length && (
+      {!!images && (
         <Image
-          src={images.length ? images[currentIndex]?.url : noImage}
-          alt={images.length ? 'image' : 'no image'}
+          src={images && images.length ? images[currentIndex]?.url : noImage}
+          alt={images && images.length ? 'image' : 'no image'}
           height={(imgStyle && imgStyle.height && +imgStyle.height) || 562}
           width={(imgStyle && imgStyle?.width && +imgStyle.width) || 490}
           style={{
@@ -47,7 +47,7 @@ export const PostImages = ({ postData, wrapperStyle, imgStyle }: Props) => {
           }}
         />
       )}
-      {images.length > 1 && <SlideBar styles={style} />}
+      {images && images.length > 1 && <SlideBar styles={style} />}
     </div>
   )
 }

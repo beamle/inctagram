@@ -1,15 +1,15 @@
-//const NextFederationPlugin = require('@module-federation/nextjs-mf')
+const NextFederationPlugin = require('@module-federation/nextjs-mf')
 /** @type {import('next').NextConfig} */
 // const { i18n } = require('../../../next-i18next.config')
 
 const nextConfig = {
-  /* webpack(config, { isServer }) {
+  webpack(config, { isServer }) {
     if (!isServer) {
       config.plugins.push(
         new NextFederationPlugin({
           name: 'host_inctagram',
           remotes: {
-            Messenger: 'inctagram_remote_messenger_app@http://localhost:3001/remoteEntry.js',
+            messenger: 'inctagram_remote_messenger_app@http://localhost:3001/remoteEntry.js',
           },
           filename: 'static/chunks/remoteEntry.js',
         })
@@ -17,7 +17,7 @@ const nextConfig = {
     }
 
     return config
-  },*/
+  },
   images: {
     remotePatterns: [
       {

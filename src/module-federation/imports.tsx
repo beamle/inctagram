@@ -1,6 +1,4 @@
-import { ElementType, useEffect, useState } from 'react'
-
-import dynamic from 'next/dynamic'
+import { ElementType, lazy, useEffect, useState } from 'react'
 
 export const MessengerApp = (props: any) => {
   const [Component, setComponent] = useState<ElementType | null>(null)
@@ -8,7 +6,7 @@ export const MessengerApp = (props: any) => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       // eslint-disable-next-line import/no-unresolved
-      setComponent(dynamic(() => import('Messenger/messenger-component'), { ssr: false }))
+      setComponent(lazy(() => import('messenger/messenger')))
     }
   }, [])
 
