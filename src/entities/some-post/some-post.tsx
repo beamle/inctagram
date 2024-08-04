@@ -104,7 +104,7 @@ export const SomePost = (props: Props) => {
       <figure className={style.photoWrapper}>
         <Image
           key={p.id}
-          src={p?.images[0]?.url}
+          src={p?.images[0]?.url ?? noImage}
           alt={'post image'}
           className={style.photo}
           onClick={postImageClickHandler}

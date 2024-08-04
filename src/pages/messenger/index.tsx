@@ -1,7 +1,7 @@
 import { GetStaticProps } from 'next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 
-//import { MessengerApp } from '@/module-federation/imports'
+import { MessengerApp } from '@/module-federation/imports'
 import { getLayout } from '@/shared/layouts/main-layout/main-layout'
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
@@ -15,7 +15,7 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => {
 }
 
 const Messenger = () => {
-  // return <MessengerApp />
+  return <MessengerApp />
 }
 
 Messenger.getLayout = getLayout

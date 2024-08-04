@@ -23,7 +23,7 @@ import { wrapper } from '@/shared/providers/store-provider/model/store'
 const removeTypenameLink = removeTypenameFromVariables()
 
 const wsLink = new WebSocketLink(
-  new SubscriptionClient('ws://inctagram.work/api/v1/graphql', {
+  new SubscriptionClient('wss://inctagram.work/api/v1/graphql', {
     connectionParams: {
       authToken: `Basic ${getAdminBasicCredentials()}`,
     },
