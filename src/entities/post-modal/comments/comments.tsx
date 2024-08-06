@@ -175,10 +175,9 @@ export const Comments = (props: PostResponseType) => {
 
           return (
             <>
-              <div ref={refCallback}>
+              <div ref={refCallback} key={item.id}>
                 <SomeComment
                   item={item}
-                  key={item.id}
                   isLoggedIn
                   answerClickHandler={answerClick}
                   likeChange={likeChange}

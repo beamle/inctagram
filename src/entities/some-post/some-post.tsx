@@ -109,6 +109,7 @@ export const SomePost = (props: Props) => {
           className={style.photo}
           onClick={postImageClickHandler}
           fill
+          sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
         />
       </figure>
       {isPostActive && !isLikesLoading && (
