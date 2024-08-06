@@ -70,11 +70,15 @@ export const postsApi = createApi({
         providesTags: ['editPost', 'getPublicPost'],
       }),
       getAllPublicPosts: build.query<GetAllPublicPostsResponseType, GetAllPostsArgs>({
-        query: params => {
+        query: ({ endCursorPostId, pageSize, sortBy, sortDirection }) => {
           return {
             method: 'GET',
-            url: `public-posts/all`,
-            params,
+            url: `public-posts/all/${endCursorPostId}`,
+            params: {
+              pageSize,
+              sortBy,
+              sortDirection,
+            },
           }
         },
         providesTags: ['getAllPublicPosts'],
@@ -261,6 +265,7 @@ export const postsApi = createApi({
 export const {
   useCreatePostMutation,
   useUploadImageMutation,
+  useLazyGetAllPublicPostsQuery,
   useLazyGetPublicPostQuery,
   useLazyGetPublicUserPostsQuery,
   useDeletePostMutation,
