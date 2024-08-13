@@ -71,14 +71,13 @@ function Home(props: HomeProps) {
   const [endCursorPostId, setEndCursorPostId] = useState<number | undefined>(undefined)
   const publicPosts = props.publicPostsData[0].data
   const [getAllPublicPosts, { isLoading }] = useLazyGetAllPublicPostsQuery()
-  const [posts, setPosts] = useState<PostResponseType[] | []>([])
+  const [posts, setPosts] = useState<PostResponseType[] | []>(publicPosts.items ?? [])
   const [isNextPage, setIsNextPage] = useState(false)
   const { t: tError } = useTranslation('common', { keyPrefix: 'Error' })
 
   useEffect(() => {
     if (publicPosts) {
       setEndCursorPostId(publicPosts.items[publicPosts.items.length - 1].id)
-      setPosts(publicPosts.items)
     }
     const observer = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting && !isLoading && posts.length < publicPosts.totalCount) {
